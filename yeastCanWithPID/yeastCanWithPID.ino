@@ -18,7 +18,7 @@ double meansensorValue1 = 0;
 double meansensorValue2 = 0;
 double temp1 = 0;
 double temp2 = 0;
-const int numberOfSamples = 255;
+const int numberOfSamples = 200;
 float R1_1;
 float R1_2;
 const double R2 = 10000;
