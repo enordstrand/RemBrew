@@ -1,25 +1,107 @@
-# This is a sample Python script.
+import serial
 
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+s = serial.Serial('COM7')
+res = s.read()
+print(res)
 
+# OUTPUTS
+v1_open = 3
+v1_close = 5
+v2_1 = 7
+v2_2 = 11
+v3_open = 13
+v3_close = 15
+v4_open = 19
+v4_close = 21
+v5_open = 23
+v5_close = 29
 
+p1 = 31
+p2 = 33
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+# INPUTS
+HL1 = 35
+HL2 = 37
+HL3 = 8
+LL1 = 10
+LL2 = 12
 
-# Implement Python Switch Case Statement using Dictionary
+ser = serial.Serial(
+        port='/dev/ttyS0', #Replace ttyS0 with ttyAM0 for Pi1,Pi2,Pi0
+        baudrate = 9600,
+        parity=serial.PARITY_NONE,
+        stopbits=serial.STOPBITS_ONE,
+        bytesize=serial.EIGHTBITS,
+        timeout=1
+)
 
+try:
+    import RPi.GPIO as GPIO
+    GPIO.setmode(GPIO.BOARD)
+
+    GPIO.setup(v1_open, GPIO.OUT)
+    GPIO.setup(v1_close, GPIO.OUT)
+    GPIO.setup(v2_1, GPIO.OUT)
+    GPIO.setup(v2_2, GPIO.OUT)
+    GPIO.setup(v3_open, GPIO.OUT)
+    GPIO.setup(v3_open, GPIO.OUT)
+    GPIO.setup(v4_open, GPIO.OUT)
+    GPIO.setup(v4_open, GPIO.OUT)
+    GPIO.setup(v5_open, GPIO.OUT)
+    GPIO.setup(v5_open, GPIO.OUT)
+    GPIO.setup(p1, GPIO.OUT)
+    GPIO.setup(p2, GPIO.OUT)
+
+    GPIO.setup(HL1, GPIO.IN)
+    GPIO.setup(HL2, GPIO.IN)
+    GPIO.setup(HL3, GPIO.IN)
+    GPIO.setup(LL1, GPIO.IN)
+    GPIO.setup(LL2, GPIO.IN)
+except ImportError:
+    print ("Not running RPi, can't import library")
 
 def state1():
     print("Close all valves and pumps")
+    try:
+        GPIO.output(v1_open, GPIO.LOW)
+        GPIO.output(v1_close, GPIO.HIGH)
+        GPIO.output(v2_1, GPIO.HIGH)
+        GPIO.output(v2_2, GPIO.LOW)
+        GPIO.output(v3_open, GPIO.LOW)
+        GPIO.output(v3_close, GPIO.HIGH)
+        GPIO.output(v4_open, GPIO.LOW)
+        GPIO.output(v4_close, GPIO.HIGH)
+        GPIO.output(v5_open, GPIO.LOW)
+        GPIO.output(v5_close, GPIO.HIGH)
+        GPIO.output(p1, GPIO.LOW)
+        GPIO.output(p2, GPIO.LOW)
+    except:
+        print ("RPI GIIO NOT EXIST")
+
+    ser.write("You shall Turn off H1")
+    ser.write("You shall Turn off H2")
+
+    print ("All valves and pumps are now closed")
+
     return 2
 def state2():
     print("Fill HLT start")
+    try:
+        GPIO.output(v1_open, GPIO.HIGH)
+        GPIO.output(v1_close, GPIO.LOW)
+    except:
+        print ("Not rpi")
+
+    if (HL1 == 1):
+        try:
+            GPIO.output(v1_open, GPIO.LOW)
+            GPIO.output(v1_close, GPIO.HIGH)
+        except:
+            print("Not rpi")
     return 3
 def state3():
     print("Initial heating for meshing 67 degrees")
+    ser.write ("You shall start ")
     return 4
 def state4():
     print("Fill mesh")
