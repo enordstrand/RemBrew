@@ -1,8 +1,9 @@
 import serial
 
-s = serial.Serial('COM7')
-res = s.read()
-print(res)
+ser = serial.Serial('COM2')
+
+# res = s.read()
+# print(res)
 
 # OUTPUTS
 v1_open = 3
@@ -26,14 +27,14 @@ HL3 = 8
 LL1 = 10
 LL2 = 12
 
-ser = serial.Serial(
-        port='/dev/ttyS0', #Replace ttyS0 with ttyAM0 for Pi1,Pi2,Pi0
-        baudrate = 9600,
-        parity=serial.PARITY_NONE,
-        stopbits=serial.STOPBITS_ONE,
-        bytesize=serial.EIGHTBITS,
-        timeout=1
-)
+# ser = serial.Serial(
+#         port='/dev/ttyS0', #Replace ttyS0 with ttyAM0 for Pi1,Pi2,Pi0
+#         baudrate = 9600,
+#         parity=serial.PARITY_NONE,
+#         stopbits=serial.STOPBITS_ONE,
+#         bytesize=serial.EIGHTBITS,
+#         timeout=1
+# )
 
 try:
     import RPi.GPIO as GPIO
@@ -78,8 +79,8 @@ def state1():
     except:
         print ("RPI GIIO NOT EXIST")
 
-    ser.write("You shall Turn off H1")
-    ser.write("You shall Turn off H2")
+    # ser.write("You shall Turn off H1")
+    # ser.write("You shall Turn off H2")
 
     print ("All valves and pumps are now closed")
 
@@ -101,7 +102,13 @@ def state2():
     return 3
 def state3():
     print("Initial heating for meshing 67 degrees")
-    ser.write ("You shall start ")
+    ser.write (b'You shall start PID SP;HLT;67\r\n')
+    data = ser.readline()
+    # data = ser.read()
+
+    x = data.split(b';')
+    # print (data)
+    print (x)
     return 4
 def state4():
     print("Fill mesh")
