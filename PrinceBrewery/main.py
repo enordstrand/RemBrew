@@ -13,32 +13,43 @@ def print_hi(name):
 
 
 def state1():
-    print("IT IS MONDAY")
-    return "tuesday"
+    print("Close all valves and pumps")
+    return 2
 def state2():
-    return "wednesday"
+    print("Fill HLT start")
+    return 3
 def state3():
-    return "thursday"
+    print("Initial heating for meshing 67 degrees")
+    return 4
 def state4():
-    return "friday"
+    print("Fill mesh")
+    return 5
 def state5():
-    return "saturday"
+    print("FILL HLT for circulation")
+    return 6
 def state6():
-    return "sunday"
+    print("Heating HLT 80 degrees")
+    return 7
 def state7():
-    return "sunday"
+    print("Execute meshing")
+    return 8
 def state8():
-    return "sunday"
+    print("Circulation")
+    return 9
 def state9():
-    return "sunday"
+    print("Fill boil and heat")
+    return 10
 def state10():
-    return "sunday"
+    print("Rinse")
+    return 11
 def state11():
-    return "sunday"
+    print("Boil 90 min")
+    return 12
 def state12():
-    return "sunday"
+    print("Fill yeast bucket")
+    return 0
 def default():
-    return "Incorrect day"
+    return "Brew finished"
 
 switcher = {
     1: state1,
@@ -55,14 +66,12 @@ switcher = {
     12: state12
     }
 
-def switch(dayOfWeek):
-    return switcher.get(dayOfWeek, default)()
+def switch(state):
+    return switcher.get(state, default)()
 
-    # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     state = 1
-    while (True):
-        switch(state)
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+    while (state < 13):
+        state = switch(state)
+        print("next state is: " + str(state))
 
