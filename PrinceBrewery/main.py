@@ -1,6 +1,12 @@
 import serial
+import time
+
+simulation = True
 
 ser = serial.Serial('COM2')
+serSim = serial.Serial('COM3')
+
+simTemp = 20.0
 
 # res = s.read()
 # print(res)
@@ -101,15 +107,41 @@ def state2():
             print("Not rpi")
     return 3
 def state3():
+    global simTemp
     print("Initial heating for meshing 67 degrees")
     ser.write (b'You shall start PID SP;HLT;67\r\n')
+    if (simulation == True):
+        print ("Simtemp = " + str(simTemp))
+        dataSim = serSim.readline()
+
+        print(dataSim)
+
+        dataSimSplit = dataSim.split(b';')
+        print (dataSimSplit[1])
+        # print(dataSim[1].to_bytes(2,'big'))
+        # print(str(dataSim[1]))
+        # print (temp)
+        test = "hei"
+        test2 = 42
+        serSim.write(b'PID FB;' + dataSimSplit[1] + b';T1:' + bytes(str(simTemp), "utf-8") + b'\r\n')
+        simTemp+=1
+        # time.sleep(1)
     data = ser.readline()
+    print ("the data is:")
+    print (data)
+
+
     # data = ser.read()
 
     x = data.split(b';')
     # print (data)
-    print (x)
-    return 4
+    print ("Got feedback from COM3")
+
+    if (float(x[2].split(b':')[1]) < 67):
+        return 3
+    else:
+        return 4
+
 def state4():
     print("Fill mesh")
     return 5
@@ -136,8 +168,9 @@ def state11():
     return 12
 def state12():
     print("Fill yeast bucket")
-    return 0
+    return 42
 def default():
+    print ("Brew finished")
     return "Brew finished"
 
 switcher = {
@@ -160,7 +193,7 @@ def switch(state):
 
 if __name__ == '__main__':
     state = 1
-    while (state < 13):
+    while (state <= 12):
         state = switch(state)
         print("next state is: " + str(state))
 
