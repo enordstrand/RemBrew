@@ -7,6 +7,7 @@ ser = serial.Serial('COM2')
 serSim = serial.Serial('COM3')
 
 simTemp = 20.0
+simHLTliter = 0
 
 # res = s.read()
 # print(res)
@@ -67,21 +68,57 @@ try:
 except ImportError:
     print ("Not running RPi, can't import library")
 
+def openV1():
+    GPIO.output(v1_open, GPIO.HIGH)
+    GPIO.output(v1_close, GPIO.LOW)
+def closeV1():
+    GPIO.output(v1_open, GPIO.LOW)
+    GPIO.output(v1_close, GPIO.HIGH)
+def setV2(int):
+    if (int ==1):
+        GPIO.output(v2_1, GPIO.HIGH)
+        GPIO.output(v2_2, GPIO.LOW)
+    elif (int == 2):
+        GPIO.output(v2_1, GPIO.HIGH)
+        GPIO.output(v2_2, GPIO.LOW)
+def openV3():
+    GPIO.output(v3_open, GPIO.HIGH)
+    GPIO.output(v3_close, GPIO.LOW)
+def closeV3():
+    GPIO.output(v3_open, GPIO.LOW)
+    GPIO.output(v3_close, GPIO.HIGH)
+def openV4():
+    GPIO.output(v4_open, GPIO.HIGH)
+    GPIO.output(v4_close, GPIO.LOW)
+def closeV4():
+    GPIO.output(v4_open, GPIO.LOW)
+    GPIO.output(v4_close, GPIO.HIGH)
+def openV5():
+    GPIO.output(v5_open, GPIO.HIGH)
+    GPIO.output(v5_close, GPIO.LOW)
+def closeV5():
+    GPIO.output(v5_open, GPIO.LOW)
+    GPIO.output(v5_close, GPIO.HIGH)
+def startP1():
+    GPIO.output(p1, GPIO.HIGH)
+def stopP1():
+    GPIO.output(p1, GPIO.LOW)
+def startP2():
+    GPIO.output(p2, GPIO.HIGH)
+def stopP2():
+    GPIO.output(p2, GPIO.LOW)
+
+
 def state1():
     print("Close all valves and pumps")
     try:
-        GPIO.output(v1_open, GPIO.LOW)
-        GPIO.output(v1_close, GPIO.HIGH)
-        GPIO.output(v2_1, GPIO.HIGH)
-        GPIO.output(v2_2, GPIO.LOW)
-        GPIO.output(v3_open, GPIO.LOW)
-        GPIO.output(v3_close, GPIO.HIGH)
-        GPIO.output(v4_open, GPIO.LOW)
-        GPIO.output(v4_close, GPIO.HIGH)
-        GPIO.output(v5_open, GPIO.LOW)
-        GPIO.output(v5_close, GPIO.HIGH)
-        GPIO.output(p1, GPIO.LOW)
-        GPIO.output(p2, GPIO.LOW)
+        closeV1()
+        setV2(1)
+        closeV3()
+        closeV4()
+        closeV5()
+        stopP1()
+        stopP2()
     except:
         print ("RPI GIIO NOT EXIST")
 
@@ -94,15 +131,13 @@ def state1():
 def state2():
     print("Fill HLT start")
     try:
-        GPIO.output(v1_open, GPIO.HIGH)
-        GPIO.output(v1_close, GPIO.LOW)
+        openV1()
     except:
         print ("Not rpi")
 
     if (HL1 == 1):
         try:
-            GPIO.output(v1_open, GPIO.LOW)
-            GPIO.output(v1_close, GPIO.HIGH)
+            closeV1()
         except:
             print("Not rpi")
     return 3
@@ -117,12 +152,7 @@ def state3():
         print(dataSim)
 
         dataSimSplit = dataSim.split(b';')
-        print (dataSimSplit[1])
-        # print(dataSim[1].to_bytes(2,'big'))
-        # print(str(dataSim[1]))
-        # print (temp)
-        test = "hei"
-        test2 = 42
+
         serSim.write(b'PID FB;' + dataSimSplit[1] + b';T1:' + bytes(str(simTemp), "utf-8") + b'\r\n')
         simTemp+=1
         # time.sleep(1)
@@ -130,12 +160,7 @@ def state3():
     print ("the data is:")
     print (data)
 
-
-    # data = ser.read()
-
     x = data.split(b';')
-    # print (data)
-    print ("Got feedback from COM3")
 
     if (float(x[2].split(b':')[1]) < 67):
         return 3
@@ -144,6 +169,15 @@ def state3():
 
 def state4():
     print("Fill mesh")
+    openV3()
+    startP2()
+
+    sim
+
+    if (HL2 == 1):
+        closeV3()
+        stopP2()
+
     return 5
 def state5():
     print("FILL HLT for circulation")
