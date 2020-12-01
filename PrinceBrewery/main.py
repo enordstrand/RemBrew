@@ -4,7 +4,7 @@ import time
 simulation = True
 
 ser = serial.Serial('COM2')
-serSim = serial.Serial('COM3')
+serSimPhyton = serial.Serial('COM3')
 
 simTemp = 20.0
 simHLTliter = 0
@@ -69,44 +69,83 @@ except ImportError:
     print ("Not running RPi, can't import library")
 
 def openV1():
-    GPIO.output(v1_open, GPIO.HIGH)
-    GPIO.output(v1_close, GPIO.LOW)
+    try:
+        GPIO.output(v1_open, GPIO.HIGH)
+        GPIO.output(v1_close, GPIO.LOW)
+    except:
+        print ("RPI GIIO NOT EXIST")
 def closeV1():
-    GPIO.output(v1_open, GPIO.LOW)
-    GPIO.output(v1_close, GPIO.HIGH)
+    try:
+        GPIO.output(v1_open, GPIO.LOW)
+        GPIO.output(v1_close, GPIO.HIGH)
+    except:
+        print ("RPI GIIO NOT EXIST")
 def setV2(int):
-    if (int ==1):
-        GPIO.output(v2_1, GPIO.HIGH)
-        GPIO.output(v2_2, GPIO.LOW)
-    elif (int == 2):
-        GPIO.output(v2_1, GPIO.HIGH)
-        GPIO.output(v2_2, GPIO.LOW)
+    try:
+        if (int ==1):
+            GPIO.output(v2_1, GPIO.HIGH)
+            GPIO.output(v2_2, GPIO.LOW)
+        elif (int == 2):
+            GPIO.output(v2_1, GPIO.HIGH)
+            GPIO.output(v2_2, GPIO.LOW)
+    except:
+        print ("RPI GIIO NOT EXIST")
 def openV3():
-    GPIO.output(v3_open, GPIO.HIGH)
-    GPIO.output(v3_close, GPIO.LOW)
+    try:
+        GPIO.output(v3_open, GPIO.HIGH)
+        GPIO.output(v3_close, GPIO.LOW)
+    except:
+        print ("RPI GIIO NOT EXIST")
 def closeV3():
-    GPIO.output(v3_open, GPIO.LOW)
-    GPIO.output(v3_close, GPIO.HIGH)
+    try:
+        GPIO.output(v3_open, GPIO.LOW)
+        GPIO.output(v3_close, GPIO.HIGH)
+    except:
+        print ("RPI GIIO NOT EXIST")
 def openV4():
-    GPIO.output(v4_open, GPIO.HIGH)
-    GPIO.output(v4_close, GPIO.LOW)
+    try:
+        GPIO.output(v4_open, GPIO.HIGH)
+        GPIO.output(v4_close, GPIO.LOW)
+    except:
+        print ("RPI GIIO NOT EXIST")
 def closeV4():
-    GPIO.output(v4_open, GPIO.LOW)
-    GPIO.output(v4_close, GPIO.HIGH)
+    try:
+        GPIO.output(v4_open, GPIO.LOW)
+        GPIO.output(v4_close, GPIO.HIGH)
+    except:
+        print ("RPI GIIO NOT EXIST")
 def openV5():
-    GPIO.output(v5_open, GPIO.HIGH)
-    GPIO.output(v5_close, GPIO.LOW)
+    try:
+        GPIO.output(v5_open, GPIO.HIGH)
+        GPIO.output(v5_close, GPIO.LOW)
+    except:
+        print ("RPI GIIO NOT EXIST")
 def closeV5():
-    GPIO.output(v5_open, GPIO.LOW)
-    GPIO.output(v5_close, GPIO.HIGH)
+    try:
+        GPIO.output(v5_open, GPIO.LOW)
+        GPIO.output(v5_close, GPIO.HIGH)
+    except:
+        print ("RPI GIIO NOT EXIST")
 def startP1():
-    GPIO.output(p1, GPIO.HIGH)
+    try:
+        GPIO.output(p1, GPIO.HIGH)
+    except:
+        print ("RPI GIIO NOT EXIST")
 def stopP1():
-    GPIO.output(p1, GPIO.LOW)
+    try:
+        GPIO.output(p1, GPIO.LOW)
+    except:
+        print ("RPI GIIO NOT EXIST")
 def startP2():
-    GPIO.output(p2, GPIO.HIGH)
+    try:
+        GPIO.output(p2, GPIO.HIGH)
+    except:
+        print ("RPI GIIO NOT EXIST")
 def stopP2():
-    GPIO.output(p2, GPIO.LOW)
+    try:
+        GPIO.output(p2, GPIO.LOW)
+    except:
+        print ("RPI GIIO NOT EXIST")
 
 
 def state1():
@@ -147,15 +186,15 @@ def state3():
     ser.write (b'You shall start PID SP;HLT;67\r\n')
     if (simulation == True):
         print ("Simtemp = " + str(simTemp))
-        dataSim = serSim.readline()
+        dataSim = serSimPhyton.readline()
 
         print(dataSim)
 
         dataSimSplit = dataSim.split(b';')
 
-        serSim.write(b'PID FB;' + dataSimSplit[1] + b';T1:' + bytes(str(simTemp), "utf-8") + b'\r\n')
+        serSimPhyton.write(b'PID FB;' + dataSimSplit[1] + b';T1:' + bytes(str(simTemp), "utf-8") + b'\r\n')
         simTemp+=1
-        # time.sleep(1)
+        time.sleep(0)
     data = ser.readline()
     print ("the data is:")
     print (data)
@@ -168,17 +207,23 @@ def state3():
         return 4
 
 def state4():
+    global simHLTliter
     print("Fill mesh")
     openV3()
     startP2()
 
-    sim
+    if (simulation == True):
+        simHLTliter+=1
+        print("HLT-liter: " + str(simHLTliter))
 
-    if (HL2 == 1):
+
+
+    if (HL2 == 1 or simHLTliter == 10):
         closeV3()
         stopP2()
-
-    return 5
+        return 5
+    else:
+        return 4
 def state5():
     print("FILL HLT for circulation")
     return 6
@@ -227,7 +272,7 @@ def switch(state):
 
 if __name__ == '__main__':
     state = 1
-    while (state <= 12):
+    while (state <= 14):
         state = switch(state)
         print("next state is: " + str(state))
 
