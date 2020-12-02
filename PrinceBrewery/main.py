@@ -372,35 +372,36 @@ def state9():
         global hltTemp
         ser.write(b'You shall start PID SP;Boil;100\r\n')
 
-    if (simulation):
-        global simBoilTemp
-        print("Sim boil temp = " + str(simBoilTemp))
-        dataSim = serSimPhyton.readline()
+        if (simulation):
+            global simBoilTemp
+            print("Sim boil temp = " + str(simBoilTemp))
+            dataSim = serSimPhyton.readline()
 
-        print(dataSim)
+            print(dataSim)
 
-        dataSimSplit = dataSim.split(b';')
+            dataSimSplit = dataSim.split(b';')
 
-        serSimPhyton.write(b'PID FB;' + dataSimSplit[1] + b';T1:' + bytes(str(simHLTtemp), "utf-8") + b'\r\n')
-        if (simBoilTemp < 100):
-            simBoilTemp += 1
+            serSimPhyton.write(b'PID FB;' + dataSimSplit[1] + b';T1:' + bytes(str(simHLTtemp), "utf-8") + b'\r\n')
+            if (simBoilTemp < 100):
+                simBoilTemp += 1
 
-    data = ser.readline()
-    print("the data is:")
-    print(data)
+        data = ser.readline()
+        print("the data is:")
+        print(data)
 
-    x = data.split(b';')
-    boilTemp = float(x[2].split(b':')[1])
-    print("The temperature in Boil 100 is: " + str(boilTemp))
+        x = data.split(b';')
+        boilTemp = float(x[2].split(b':')[1])
+        print("The temperature in Boil 100 is: " + str(boilTemp))
 
-    if (boilTemp >= 100):
-        print("The vurth is now boiling. Remember to add 60' hops!")
-        if rinseProcessDone:
-            return 11
+        if (boilTemp >= 100):
+            print("The vurth is now boiling. Remember to add 60' hops!")
+            if rinseProcessDone:
+                return 11
 
-    if not rinseProcessDone:
-        return 10
-
+        if not rinseProcessDone:
+            return 10
+    else:
+        return 9
 
 def state10():
     print("Rinse")
