@@ -13,7 +13,7 @@ simMeshLiter = 0
 simBoilLiter = 0
 
 meshTimerStart = 0.0
-meshTimerEnd = 0.0
+circulationTimerStart = 0.0
 
 hltTemp = 0.0
 
@@ -291,19 +291,35 @@ def state7():
     currentTime = time.time()
     if (meshTimerStart == 0.0):
         meshTimerStart = time.time()
-        print ("Start time: " + str(meshTimerStart))
+        print ("Mesh timer started...")
         return 5
     elif (currentTime - meshTimerStart < 10):
         print ("Still meshing at time: " + str(currentTime - meshTimerStart))
         return 5
     elif (currentTime-meshTimerStart >= 10 and hltTemp >= 80):
-        print ("Reached 80 degrees, continuing!")
+        print ("Reached 80 degrees and 60 minutes, continuing!")
         return 8
     else:
         print ("Looping while waiting for something to finish...")
 def state8():
+    global circulationTimerStart
     print("Circulation")
-    return 9
+    currentTime = time.time()
+    if (circulationTimerStart == 0.0):
+        openV4()
+        startP1()
+        setV2(1)
+        circulationTimerStart = time.time()
+        print ("circulation timer started...")
+        return 8
+    elif (currentTime - circulationTimerStart < 10):
+        print("Still circulating at time: " + str(currentTime - circulationTimerStart))
+        return 8
+    elif (currentTime - circulationTimerStart >= 10):
+        print ("Reached 80 minutes circulation at 80 degrees. Cuntinuing!")
+        return 9
+
+
 def state9():
     print("Fill boil and heat")
     return 10
