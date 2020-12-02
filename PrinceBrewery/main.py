@@ -6,8 +6,16 @@ simulation = True
 ser = serial.Serial('COM2')
 serSimPhyton = serial.Serial('COM3')
 
-simTemp = 20.0
+simHLTtemp = 20.0
+simBoilTemp = 20.0
 simHLTliter = 0
+simMeshLiter = 0
+simBoilLiter = 0
+
+meshTimerStart = 0.0
+meshTimerEnd = 0.0
+
+hltTemp = 0.0
 
 # res = s.read()
 # print(res)
@@ -168,32 +176,39 @@ def state1():
 
     return 2
 def state2():
+    global simHLTliter
     print("Fill HLT start")
     try:
         openV1()
     except:
         print ("Not rpi")
 
-    if (HL1 == 1):
+    if (simulation):
+        simHLTliter+=1
+        print ("SimHLTliter: " + str(simHLTliter))
+
+    if (HL1 == 1 or simHLTliter == 10):
         try:
             closeV1()
+            return 3
         except:
             print("Not rpi")
-    return 3
+    else:
+        return 2
 def state3():
-    global simTemp
+    global simHLTtemp
     print("Initial heating for meshing 67 degrees")
     ser.write (b'You shall start PID SP;HLT;67\r\n')
     if (simulation == True):
-        print ("Simtemp = " + str(simTemp))
+        print ("Simtemp = " + str(simHLTtemp))
         dataSim = serSimPhyton.readline()
 
         print(dataSim)
 
         dataSimSplit = dataSim.split(b';')
 
-        serSimPhyton.write(b'PID FB;' + dataSimSplit[1] + b';T1:' + bytes(str(simTemp), "utf-8") + b'\r\n')
-        simTemp+=1
+        serSimPhyton.write(b'PID FB;' + dataSimSplit[1] + b';T1:' + bytes(str(simHLTtemp), "utf-8") + b'\r\n')
+        simHLTtemp+=1
         time.sleep(0)
     data = ser.readline()
     print ("the data is:")
@@ -208,31 +223,84 @@ def state3():
 
 def state4():
     global simHLTliter
+    global simMeshLiter
     print("Fill mesh")
     openV3()
     startP2()
 
     if (simulation == True):
-        simHLTliter+=1
-        print("HLT-liter: " + str(simHLTliter))
+        simMeshLiter+=1
+        print("HLT-liter: " + str(simMeshLiter))
 
 
 
-    if (HL2 == 1 or simHLTliter == 10):
+    if (HL2 == 1 or simMeshLiter == 10):
+        if (simulation):
+            simHLTliter = 0
         closeV3()
         stopP2()
         return 5
     else:
         return 4
 def state5():
-    print("FILL HLT for circulation")
+    print("Re-filling HLT")
+    global simHLTliter
+    openV1()
+    if (simulation and simHLTliter < 10):
+        simHLTliter+=1
+        print ("Liters in HLT: " + str(simHLTliter))
+
+    if (HL1 == 1 or simHLTliter >= 10):
+        closeV1()
     return 6
+
 def state6():
     print("Heating HLT 80 degrees")
+    global hltTemp
+    ser.write(b'You shall start PID SP;HLT;80\r\n')
+    if (simulation == True):
+        global simHLTtemp
+        print("Simtemp = " + str(simHLTtemp))
+        dataSim = serSimPhyton.readline()
+
+        print(dataSim)
+
+        dataSimSplit = dataSim.split(b';')
+
+        serSimPhyton.write(b'PID FB;' + dataSimSplit[1] + b';T1:' + bytes(str(simHLTtemp), "utf-8") + b'\r\n')
+        if (simHLTtemp < 80):
+            simHLTtemp += 1
+
+    data = ser.readline()
+    print("the data is:")
+    print(data)
+
+    x = data.split(b';')
+    hltTemp = float(x[2].split(b':')[1])
+    print ("The temperature in HLT 80 is: " + str(hltTemp))
+
+    # if (float(x[2].split(b':')[1]) < 67):
+    #     return 3
+    # else:
+    #     return 4
     return 7
 def state7():
-    print("Execute meshing")
-    return 8
+    global hltTemp
+    global meshTimerStart
+    print("Execute meshing!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+    currentTime = time.time()
+    if (meshTimerStart == 0.0):
+        meshTimerStart = time.time()
+        print ("Start time: " + str(meshTimerStart))
+        return 5
+    elif (currentTime - meshTimerStart < 10):
+        print ("Still meshing at time: " + str(currentTime - meshTimerStart))
+        return 5
+    elif (currentTime-meshTimerStart >= 10 and hltTemp >= 80):
+        print ("Reached 80 degrees, continuing!")
+        return 8
+    else:
+        print ("Looping while waiting for something to finish...")
 def state8():
     print("Circulation")
     return 9
