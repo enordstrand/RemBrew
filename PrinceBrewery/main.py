@@ -17,6 +17,12 @@ circulationTimerStart = 0.0
 rinseTimerStart = 0.0
 boilTimerStart = 0.0
 
+meshTime = 0.1
+circulationTime = 0.1
+rinseTime = 0.1
+boilTime1 = 0.5
+boilTime2 = 1.0
+
 hltTemp = 0.0
 
 rinseProcessDone = False
@@ -328,10 +334,10 @@ def state7():
         meshTimerStart = time.time()
         print("Mesh timer started...")
         return 5
-    elif (currentTime - meshTimerStart < 10):
+    elif (currentTime - meshTimerStart < meshTime):
         print("Still meshing at time: " + str(currentTime - meshTimerStart))
         return 5
-    elif (currentTime - meshTimerStart >= 10 and hltTemp >= 80):
+    elif (currentTime - meshTimerStart >= meshTime and hltTemp >= 80):
         print("Reached 80 degrees and 60 minutes, continuing!")
         return 8
     else:
@@ -349,10 +355,10 @@ def state8():
         circulationTimerStart = time.time()
         print("circulation timer started...")
         return 8
-    elif (currentTime - circulationTimerStart < 10):
+    elif (currentTime - circulationTimerStart < circulationTime):
         print("Still circulating at time: " + str(currentTime - circulationTimerStart))
         return 8
-    elif (currentTime - circulationTimerStart >= 10):
+    elif (currentTime - circulationTimerStart >= circulationTime):
         print("Reached 80 minutes circulation at 80 degrees. Cuntinuing!")
         return 9
 
@@ -381,7 +387,7 @@ def state9():
 
             dataSimSplit = dataSim.split(b';')
 
-            serSimPhyton.write(b'PID FB;' + dataSimSplit[1] + b';T1:' + bytes(str(simHLTtemp), "utf-8") + b'\r\n')
+            serSimPhyton.write(b'PID FB;' + dataSimSplit[1] + b';T1:' + bytes(str(simBoilTemp), "utf-8") + b'\r\n')
             if (simBoilTemp < 100):
                 simBoilTemp += 1
 
@@ -398,8 +404,12 @@ def state9():
             if rinseProcessDone:
                 return 11
 
+        print ("The rinseProcess done is: ")
+        print(rinseProcessDone)
         if not rinseProcessDone:
             return 10
+        else:
+            return 9
     else:
         return 9
 
@@ -414,18 +424,20 @@ def state10():
             simMeshLiter -= 1
             print("Remaining simMeshLiter: " + str(simMeshLiter))
 
-    if LL1 == 0 or simMeshLiter <= 1:
+    if (LL1 == 0 or simMeshLiter <= 1) and rinseTimerStart == 0.0:
         openV3()
         startP2()
         rinseTimerStart = time.time()
         print("The rinse timer has started")
     current_time = time.time()
-    if rinseTimerStart > 0:
+    if rinseTimerStart > 0.0 and rinseProcessDone == False:
         print("The rinse process has last for: " + str(current_time - rinseTimerStart) + " seconds.")
-    if (current_time - rinseTimerStart > 5):
+        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+    if (rinseTimerStart > 0.0 and (current_time - rinseTimerStart > rinseTime)):
         closeV3()
         stopP2()
-        rinseProcessDone
+        print("rinseProcessDone")
+        rinseProcessDone = True
 
     return 9
 
@@ -434,27 +446,29 @@ def state11():
     print("Boil 60 min")
     global boilTimerStart
 
-    boilTimerStart = time.time()
+    if (boilTimerStart == 0.0):
+        boilTimerStart = time.time()
 
     currentTime = time.time()
-    if currentTime - boilTimerStart < 45:
+    if currentTime - boilTimerStart < boilTime1:
         print("Waiting for the second Hops to be inserted. Time: " + str(currentTime - boilTimerStart))
         return 11
-    elif 45 <= currentTime - boilTimerStart < 60:
+    elif boilTime1 <= currentTime - boilTimerStart < boilTime2:
         print("Waiting for the boil process to finish. Time: " + str(currentTime - boilTimerStart))
         return 11
-    elif currentTime - boilTimerStart >= 60:
+    elif currentTime - boilTimerStart >= boilTime2:
+        print ("Done with the boiling")
         return 12
 
 
 def state12():
     print("Fill yeast bucket")
-    return 42
+    return 13
 
 
 def default():
     print("Brew finished")
-    return "Brew finished"
+    return 42
 
 
 switcher = {
@@ -469,7 +483,8 @@ switcher = {
     9: state9,
     10: state10,
     11: state11,
-    12: state12
+    12: state12,
+    13: default
 }
 
 
@@ -479,6 +494,6 @@ def switch(state):
 
 if __name__ == '__main__':
     state = 1
-    while (state <= 14):
+    while (state <= 13):
         state = switch(state)
         print("next state is: " + str(state))
