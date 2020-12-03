@@ -17,11 +17,11 @@ circulationTimerStart = 0.0
 rinseTimerStart = 0.0
 boilTimerStart = 0.0
 
-meshTime = 0.1
-circulationTime = 0.1
-rinseTime = 0.1
-boilTime1 = 0.5
-boilTime2 = 1.0
+meshTime = 0.01
+circulationTime = 0.01
+rinseTime = 0.01
+boilTime1 = 0.01
+boilTime2 = 0.02
 
 hltTemp = 0.0
 
@@ -342,6 +342,7 @@ def state7():
         return 8
     else:
         print("Looping while waiting for something to finish...")
+        return 5
 
 
 def state8():
