@@ -4,7 +4,7 @@ import time
 simulation = True
 
 ser = serial.Serial('COM2')
-serSimPhyton = serial.Serial('COM3')
+serSimPython = serial.Serial('COM3')
 
 simHLTtemp = 20.0
 simBoilTemp = 20.0
@@ -29,9 +29,6 @@ boilTime2 = 0.02
 hltTemp = 0.0
 
 rinseProcessDone = False
-
-# res = s.read()
-# print(res)
 
 # OUTPUTS
 v1_open = 3
@@ -96,7 +93,7 @@ def openV1():
         GPIO.output(v1_open, GPIO.HIGH)
         GPIO.output(v1_close, GPIO.LOW)
     except:
-        print("RPI GIIO NOT EXIST")
+        print("RPI GPIO NOT EXIST")
 
 
 def closeV1():
@@ -104,19 +101,19 @@ def closeV1():
         GPIO.output(v1_open, GPIO.LOW)
         GPIO.output(v1_close, GPIO.HIGH)
     except:
-        print("RPI GIIO NOT EXIST")
+        print("RPI GPIO NOT EXIST")
 
 
-def setV2(int):
+def setV2(i):
     try:
-        if (int == 1):
+        if i == 1:
             GPIO.output(v2_1, GPIO.HIGH)
             GPIO.output(v2_2, GPIO.LOW)
-        elif (int == 2):
+        elif i == 2:
             GPIO.output(v2_1, GPIO.HIGH)
             GPIO.output(v2_2, GPIO.LOW)
     except:
-        print("RPI GIIO NOT EXIST")
+        print("RPI GPIO NOT EXIST")
 
 
 def openV3():
@@ -124,7 +121,7 @@ def openV3():
         GPIO.output(v3_open, GPIO.HIGH)
         GPIO.output(v3_close, GPIO.LOW)
     except:
-        print("RPI GIIO NOT EXIST")
+        print("RPI GPIO NOT EXIST")
 
 
 def closeV3():
@@ -132,7 +129,7 @@ def closeV3():
         GPIO.output(v3_open, GPIO.LOW)
         GPIO.output(v3_close, GPIO.HIGH)
     except:
-        print("RPI GIIO NOT EXIST")
+        print("RPI GPIO NOT EXIST")
 
 
 def openV4():
@@ -140,7 +137,7 @@ def openV4():
         GPIO.output(v4_open, GPIO.HIGH)
         GPIO.output(v4_close, GPIO.LOW)
     except:
-        print("RPI GIIO NOT EXIST")
+        print("RPI GPIO NOT EXIST")
 
 
 def closeV4():
@@ -148,7 +145,7 @@ def closeV4():
         GPIO.output(v4_open, GPIO.LOW)
         GPIO.output(v4_close, GPIO.HIGH)
     except:
-        print("RPI GIIO NOT EXIST")
+        print("RPI GPIO NOT EXIST")
 
 
 def openV5():
@@ -156,7 +153,7 @@ def openV5():
         GPIO.output(v5_open, GPIO.HIGH)
         GPIO.output(v5_close, GPIO.LOW)
     except:
-        print("RPI GIIO NOT EXIST")
+        print("RPI GPIO NOT EXIST")
 
 
 def closeV5():
@@ -164,35 +161,35 @@ def closeV5():
         GPIO.output(v5_open, GPIO.LOW)
         GPIO.output(v5_close, GPIO.HIGH)
     except:
-        print("RPI GIIO NOT EXIST")
+        print("RPI GPIO NOT EXIST")
 
 
 def startP1():
     try:
         GPIO.output(p1, GPIO.HIGH)
     except:
-        print("RPI GIIO NOT EXIST")
+        print("RPI GPIO NOT EXIST")
 
 
 def stopP1():
     try:
         GPIO.output(p1, GPIO.LOW)
     except:
-        print("RPI GIIO NOT EXIST")
+        print("RPI GPIO NOT EXIST")
 
 
 def startP2():
     try:
         GPIO.output(p2, GPIO.HIGH)
     except:
-        print("RPI GIIO NOT EXIST")
+        print("RPI GPIO NOT EXIST")
 
 
 def stopP2():
     try:
         GPIO.output(p2, GPIO.LOW)
     except:
-        print("RPI GIIO NOT EXIST")
+        print("RPI GPIO NOT EXIST")
 
 
 def state1():
@@ -206,7 +203,7 @@ def state1():
         stopP1()
         stopP2()
     except:
-        print("RPI GIIO NOT EXIST")
+        print("RPI GPIO NOT EXIST")
 
     print("All valves and pumps are now closed")
 
@@ -218,11 +215,11 @@ def state2():
     global simHLTliter
     openV1()
 
-    if (simulation):
+    if simulation:
         simHLTliter += 1
         print("SimHLTliter: " + str(simHLTliter))
 
-    if (HL1 == 1 or simHLTliter == 10):
+    if HL1 == 1 or simHLTliter == 10:
         try:
             closeV1()
             return 3
@@ -235,19 +232,17 @@ def state2():
 def state3():
     global simHLTtemp
     global meshTempSP
-    print("Initial heating for meshing " +str(meshTempSP) + " degrees")
+    print("Initial heating for meshing " + str(meshTempSP) + " degrees")
     ser.write(b'You shall start PID SP;HLT;' + bytes(str(meshTempSP), "utf-8") + b'\r\n')
-    # ser.write(b'You shall start PID SP;HLT;' + meshTempSP + '\r\n')
-    print ("DONE")
-    if (simulation == True):
+    if simulation:
         print("Sim HLT temp = " + str(simHLTtemp))
-        dataSim = serSimPhyton.readline()
+        dataSim = serSimPython.readline()
 
         print(dataSim)
 
         dataSimSplit = dataSim.split(b';')
 
-        serSimPhyton.write(b'PID FB;' + dataSimSplit[1] + b';T1:' + bytes(str(simHLTtemp), "utf-8") + b'\r\n')
+        serSimPython.write(b'PID FB;' + dataSimSplit[1] + b';T1:' + bytes(str(simHLTtemp), "utf-8") + b'\r\n')
         simHLTtemp += 1
         time.sleep(0)
     data = ser.readline()
@@ -256,7 +251,7 @@ def state3():
 
     x = data.split(b';')
 
-    if (float(x[2].split(b':')[1]) < meshTempSP):
+    if float(x[2].split(b':')[1]) < meshTempSP:
         return 3
     else:
         return 4
@@ -269,12 +264,12 @@ def state4():
     openV3()
     startP2()
 
-    if (simulation == True):
+    if simulation == True:
         simMeshLiter += 1
         print("HLT-liter: " + str(simMeshLiter))
 
-    if (HL2 == 1 or simMeshLiter == 10):
-        if (simulation):
+    if HL2 == 1 or simMeshLiter == 10:
+        if simulation:
             simHLTliter = 0
         closeV3()
         stopP2()
@@ -287,11 +282,11 @@ def state5():
     print("Re-filling HLT")
     global simHLTliter
     openV1()
-    if (simulation and simHLTliter < 10):
+    if simulation and simHLTliter < 10:
         simHLTliter += 1
         print("Liters in HLT: " + str(simHLTliter))
 
-    if (HL1 == 1 or simHLTliter >= 10):
+    if HL1 == 1 or simHLTliter >= 10:
         closeV1()
     return 6
 
@@ -301,17 +296,17 @@ def state6():
     print("Heating HLT " + str(circulationTempSP) + " degrees")
     global hltTemp
     ser.write(b'You shall start PID SP;HLT;' + bytes(str(circulationTempSP), "utf-8") + b'\r\n')
-    if (simulation == True):
+    if simulation == True:
         global simHLTtemp
         print("Sim HLT temp = " + str(simHLTtemp))
-        dataSim = serSimPhyton.readline()
+        dataSim = serSimPython.readline()
 
         print(dataSim)
 
         dataSimSplit = dataSim.split(b';')
 
-        serSimPhyton.write(b'PID FB;' + dataSimSplit[1] + b';T1:' + bytes(str(simHLTtemp), "utf-8") + b'\r\n')
-        if (simHLTtemp < circulationTempSP):
+        serSimPython.write(b'PID FB;' + dataSimSplit[1] + b';T1:' + bytes(str(simHLTtemp), "utf-8") + b'\r\n')
+        if simHLTtemp < circulationTempSP:
             simHLTtemp += 1
 
     data = ser.readline()
@@ -321,11 +316,6 @@ def state6():
     x = data.split(b';')
     hltTemp = float(x[2].split(b':')[1])
     print("The temperature in HLT " + str(meshTempSP) + " is: " + str(hltTemp))
-
-    # if (float(x[2].split(b':')[1]) < 67):
-    #     return 3
-    # else:
-    #     return 4
     return 7
 
 
@@ -335,15 +325,15 @@ def state7():
     global circulationTempSP
     global meshTime
     currentTime = time.time()
-    if (meshTimerStart == 0.0):
+    if meshTimerStart == 0.0:
         meshTimerStart = time.time()
         print("Mesh timer started...")
         return 5
     elif currentTime - meshTimerStart < meshTime:
         print("Still meshing at time: " + str(currentTime - meshTimerStart))
         return 5
-    elif (currentTime - meshTimerStart >= meshTime and hltTemp >= circulationTempSP):
-        print("Reached " + str(circulationTempSP) + " degrees and " + str(meshTime/60.0) + " minutes, continuing!")
+    elif currentTime - meshTimerStart >= meshTime and hltTemp >= circulationTempSP:
+        print("Reached " + str(circulationTempSP) + " degrees and " + str(meshTime / 60.0) + " minutes, continuing!")
         return 8
     else:
         print("Looping while waiting for something to finish...")
@@ -354,17 +344,17 @@ def state8():
     global circulationTimerStart
     print("Circulation")
     currentTime = time.time()
-    if (circulationTimerStart == 0.0):
+    if circulationTimerStart == 0.0:
         openV4()
         startP1()
         setV2(1)
         circulationTimerStart = time.time()
         print("circulation timer started...")
         return 8
-    elif (currentTime - circulationTimerStart < circulationTime):
+    elif currentTime - circulationTimerStart < circulationTime:
         print("Still circulating at time: " + str(currentTime - circulationTimerStart))
         return 8
-    elif (currentTime - circulationTimerStart >= circulationTime):
+    elif currentTime - circulationTimerStart >= circulationTime:
         print("Reached 80 minutes circulation at 80 degrees. Cuntinuing!")
         return 9
 
@@ -373,28 +363,27 @@ def state9():
     print("Fill boil and heat")
     global rinseProcessDone
 
-
     setV2(2)
 
-    if (simulation):
+    if simulation:
         global simBoilLiter
         simBoilLiter += 1
 
-    if (LL2 == 1 or simBoilLiter > 2):
+    if LL2 == 1 or simBoilLiter > 2:
         global hltTemp
         ser.write(b'You shall start PID SP;Boil;100\r\n')
 
-        if (simulation):
+        if simulation:
             global simBoilTemp
             print("Sim boil temp = " + str(simBoilTemp))
-            dataSim = serSimPhyton.readline()
+            dataSim = serSimPython.readline()
 
             print(dataSim)
 
             dataSimSplit = dataSim.split(b';')
 
-            serSimPhyton.write(b'PID FB;' + dataSimSplit[1] + b';T1:' + bytes(str(simBoilTemp), "utf-8") + b'\r\n')
-            if (simBoilTemp < 100):
+            serSimPython.write(b'PID FB;' + dataSimSplit[1] + b';T1:' + bytes(str(simBoilTemp), "utf-8") + b'\r\n')
+            if simBoilTemp < 100:
                 simBoilTemp += 1
 
         data = ser.readline()
@@ -405,12 +394,12 @@ def state9():
         boilTemp = float(x[2].split(b':')[1])
         print("The temperature in Boil 100 is: " + str(boilTemp))
 
-        if (boilTemp >= 100):
+        if boilTemp >= 100:
             print("The vurth is now boiling. Remember to add 60' hops!")
             if rinseProcessDone:
                 return 11
 
-        print ("The rinseProcess done is: ")
+        print("The rinseProcess done is: ")
         print(rinseProcessDone)
         if not rinseProcessDone:
             return 10
@@ -418,6 +407,7 @@ def state9():
             return 9
     else:
         return 9
+
 
 def state10():
     print("Rinse")
@@ -438,8 +428,7 @@ def state10():
     current_time = time.time()
     if rinseTimerStart > 0.0 and rinseProcessDone == False:
         print("The rinse process has last for: " + str(current_time - rinseTimerStart) + " seconds.")
-        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-    if (rinseTimerStart > 0.0 and (current_time - rinseTimerStart > rinseTime)):
+    if rinseTimerStart > 0.0 and (current_time - rinseTimerStart > rinseTime):
         closeV3()
         stopP2()
         print("rinseProcessDone")
@@ -452,7 +441,7 @@ def state11():
     print("Boil 60 min")
     global boilTimerStart
 
-    if (boilTimerStart == 0.0):
+    if boilTimerStart == 0.0:
         boilTimerStart = time.time()
 
     currentTime = time.time()
@@ -463,7 +452,7 @@ def state11():
         print("Waiting for the boil process to finish. Time: " + str(currentTime - boilTimerStart))
         return 11
     elif currentTime - boilTimerStart >= boilTime2:
-        print ("Done with the boiling")
+        print("Done with the boiling")
         return 12
 
 
@@ -494,12 +483,12 @@ switcher = {
 }
 
 
-def switch(state):
-    return switcher.get(state, default)()
+def switch(brewState):
+    return switcher.get(brewState, default)()
 
 
 if __name__ == '__main__':
     state = 1
-    while (state <= 13):
+    while state <= 13:
         state = switch(state)
         print("next state is: " + str(state))
