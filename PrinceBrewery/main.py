@@ -12,6 +12,9 @@ simHLTliter = 0
 simMeshLiter = 0
 simBoilLiter = 0
 
+meshTempSP = 67.0
+circulationTempSP = 80.0
+
 meshTimerStart = 0.0
 circulationTimerStart = 0.0
 rinseTimerStart = 0.0
@@ -205,9 +208,6 @@ def state1():
     except:
         print("RPI GIIO NOT EXIST")
 
-    # ser.write("You shall Turn off H1")
-    # ser.write("You shall Turn off H2")
-
     print("All valves and pumps are now closed")
 
     return 2
@@ -234,8 +234,11 @@ def state2():
 
 def state3():
     global simHLTtemp
-    print("Initial heating for meshing 67 degrees")
-    ser.write(b'You shall start PID SP;HLT;67\r\n')
+    global meshTempSP
+    print("Initial heating for meshing " +str(meshTempSP) + " degrees")
+    ser.write(b'You shall start PID SP;HLT;' + bytes(str(meshTempSP), "utf-8") + b'\r\n')
+    # ser.write(b'You shall start PID SP;HLT;' + meshTempSP + '\r\n')
+    print ("DONE")
     if (simulation == True):
         print("Sim HLT temp = " + str(simHLTtemp))
         dataSim = serSimPhyton.readline()
@@ -253,7 +256,7 @@ def state3():
 
     x = data.split(b';')
 
-    if (float(x[2].split(b':')[1]) < 67):
+    if (float(x[2].split(b':')[1]) < meshTempSP):
         return 3
     else:
         return 4
@@ -294,9 +297,10 @@ def state5():
 
 
 def state6():
-    print("Heating HLT 80 degrees")
+    global circulationTempSP
+    print("Heating HLT " + str(circulationTempSP) + " degrees")
     global hltTemp
-    ser.write(b'You shall start PID SP;HLT;80\r\n')
+    ser.write(b'You shall start PID SP;HLT;' + bytes(str(circulationTempSP), "utf-8") + b'\r\n')
     if (simulation == True):
         global simHLTtemp
         print("Sim HLT temp = " + str(simHLTtemp))
@@ -307,7 +311,7 @@ def state6():
         dataSimSplit = dataSim.split(b';')
 
         serSimPhyton.write(b'PID FB;' + dataSimSplit[1] + b';T1:' + bytes(str(simHLTtemp), "utf-8") + b'\r\n')
-        if (simHLTtemp < 80):
+        if (simHLTtemp < circulationTempSP):
             simHLTtemp += 1
 
     data = ser.readline()
@@ -316,7 +320,7 @@ def state6():
 
     x = data.split(b';')
     hltTemp = float(x[2].split(b':')[1])
-    print("The temperature in HLT 80 is: " + str(hltTemp))
+    print("The temperature in HLT " + str(meshTempSP) + " is: " + str(hltTemp))
 
     # if (float(x[2].split(b':')[1]) < 67):
     #     return 3
@@ -328,17 +332,18 @@ def state6():
 def state7():
     global hltTemp
     global meshTimerStart
-    print("Execute meshing!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+    global circulationTempSP
+    global meshTime
     currentTime = time.time()
     if (meshTimerStart == 0.0):
         meshTimerStart = time.time()
         print("Mesh timer started...")
         return 5
-    elif (currentTime - meshTimerStart < meshTime):
+    elif currentTime - meshTimerStart < meshTime:
         print("Still meshing at time: " + str(currentTime - meshTimerStart))
         return 5
-    elif (currentTime - meshTimerStart >= meshTime and hltTemp >= 80):
-        print("Reached 80 degrees and 60 minutes, continuing!")
+    elif (currentTime - meshTimerStart >= meshTime and hltTemp >= circulationTempSP):
+        print("Reached " + str(circulationTempSP) + " degrees and " + str(meshTime/60.0) + " minutes, continuing!")
         return 8
     else:
         print("Looping while waiting for something to finish...")
