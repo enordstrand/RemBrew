@@ -355,7 +355,7 @@ def state8():
         print("Still circulating at time: " + str(currentTime - circulationTimerStart))
         return 8
     elif currentTime - circulationTimerStart >= circulationTime:
-        print("Reached 80 minutes circulation at 80 degrees. Cuntinuing!")
+        print("Reached 80 minutes circulation at 80 degrees. Continuing!")
         return 9
 
 
