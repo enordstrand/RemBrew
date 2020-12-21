@@ -3,8 +3,8 @@ import time
 
 simulation = True
 
-ser = serial.Serial('COM2')
-serSimPython = serial.Serial('COM3')
+ser = serial.Serial('COM3')
+serSimPython = serial.Serial('COM4')
 
 simHLTtemp = 20.0
 simBoilTemp = 20.0
@@ -203,7 +203,7 @@ def state1():
         stopP1()
         stopP2()
     except:
-        print("RPI GPIO NOT EXIST")
+        print("RPI GPIO NOT EXISTT")
 
     print("All valves and pumps are now closed")
 
