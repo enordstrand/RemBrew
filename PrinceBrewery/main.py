@@ -203,7 +203,7 @@ def state1():
         stopP1()
         stopP2()
     except:
-        print("RPI GPIO NOT EXISTT")
+        print("RPI GPIO NOT EXISTTT")
 
     print("All valves and pumps are now closed")
 
