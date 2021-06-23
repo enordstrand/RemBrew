@@ -3,8 +3,8 @@ import time
 
 simulation = True
 
-ser = serial.Serial('COM3')
-serSimPython = serial.Serial('COM4')
+# ser = serial.Serial('COM3')
+# serSimPython = serial.Serial('COM4')
 
 simHLTtemp = 20.0
 simBoilTemp = 20.0
@@ -52,14 +52,16 @@ HL3 = 8
 LL1 = 10
 LL2 = 12
 
-# ser = serial.Serial(
-#         port='/dev/ttyS0', #Replace ttyS0 with ttyAM0 for Pi1,Pi2,Pi0
-#         baudrate = 9600,
-#         parity=serial.PARITY_NONE,
-#         stopbits=serial.STOPBITS_ONE,
-#         bytesize=serial.EIGHTBITS,
-#         timeout=1
-# )
+ser = serial.Serial(
+        port='/dev/ttyACM0', #Replace ttyS0 with ttyAM0 for Pi1,Pi2,Pi0
+        baudrate = 9600,
+        parity=serial.PARITY_NONE,
+        stopbits=serial.STOPBITS_ONE,
+        bytesize=serial.EIGHTBITS,
+        timeout=1
+)
+
+serSimPython = ""
 
 try:
     import RPi.GPIO as GPIO
@@ -98,8 +100,10 @@ def openV1():
 
 def closeV1():
     try:
+        print ("Hei Amir")
         GPIO.output(v1_open, GPIO.LOW)
         GPIO.output(v1_close, GPIO.HIGH)
+        print ("Bye Amir")
     except:
         print("RPI GPIO NOT EXIST")
 
@@ -234,15 +238,20 @@ def state3():
     global meshTempSP
     print("Initial heating for meshing " + str(meshTempSP) + " degrees")
     ser.write(b'You shall start PID SP;HLT;' + bytes(str(meshTempSP), "utf-8") + b'\r\n')
+    ser.write(b'You shall start PID SP;HLT;' + bytes(str(meshTempSP), "utf-8") + b'\r\n')
+
+    # ser.write(b'test\r\n')
     if simulation:
         print("Sim HLT temp = " + str(simHLTtemp))
-        dataSim = serSimPython.readline()
+        # dataSim = serSimPython.readline()
+        dataSim = ser.readline()
 
         print(dataSim)
 
         dataSimSplit = dataSim.split(b';')
 
-        serSimPython.write(b'PID FB;' + dataSimSplit[1] + b';T1:' + bytes(str(simHLTtemp), "utf-8") + b'\r\n')
+        ser.write(b'PID FB;' + dataSimSplit[1] + b';T1:' + bytes(str(simHLTtemp), "utf-8") + b'\r\n')
+        # serSimPython.write(b'PID FB;' + dataSimSplit[1] + b';T1:' + bytes(str(simHLTtemp), "utf-8")
         simHLTtemp += 1
         time.sleep(0)
     data = ser.readline()
