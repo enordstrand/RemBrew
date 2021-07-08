@@ -1,17 +1,16 @@
 import serial
 import time
-from time import sleep # Import the sleep function from the time module
+from time import sleep  # Import the sleep function from the time module
 
 # ser = serial.Serial('COM3')
 # serSimPython = serial.Serial('COM4')
 
-simulation = True
+simulation = False
 
 state2_firstRun = True
 state5_firstRun_open = True
 state5_firstRun_close = True
 state9_firstRun = True
-
 
 simHLTtemp = 20.0
 simBoilTemp = 20.0
@@ -19,8 +18,9 @@ simHLTliter = 0
 simMeshLiter = 0
 simBoilLiter = 0
 
-meshTempSP = 67.0
-circulationTempSP = 80.0
+#meshTempSP = 67.0
+meshTempSP = 37.0
+circulationTempSP = 45.0
 boilTempSP = 80.0
 
 meshTimerStart = 0.0
@@ -35,12 +35,13 @@ boilTime1 = 30
 boilTime2 = 50
 
 hltTemp = 0.0
+highLevel = 0.0
 
 rinseProcessDone = False
 
 # OUTPUTS
-v1_open = 3
-v1_close = 5
+v1_close = 3
+v1_open = 5
 v2_1 = 7
 v2_2 = 11
 v3_open = 13
@@ -55,25 +56,26 @@ p2 = 33
 
 # INPUTS
 HL1 = 35
-HL2 = 37
+# HL2 = 37
 HL3 = 8
-LL1 = 10
-LL2 = 12
+# LL1 = 10
+# LL2 = 12
 
 ser = serial.Serial(
-        port='/dev/ttyACM0', #Replace ttyS0 with ttyAM0 for Pi1,Pi2,Pi0
-        baudrate = 9600,
-        parity=serial.PARITY_NONE,
-        stopbits=serial.STOPBITS_ONE,
-        bytesize=serial.EIGHTBITS,
-        timeout=1
+    port='/dev/ttyACM0',  # Replace ttyS0 with ttyAM0 for Pi1,Pi2,Pi0
+    baudrate=9600,
+    parity=serial.PARITY_NONE,
+    stopbits=serial.STOPBITS_ONE,
+    bytesize=serial.EIGHTBITS,
+    timeout=1
 )
 
 serSimPython = ""
 
 try:
     import RPi.GPIO as GPIO
-    GPIO.setwarnings(False) # Ignore warning for now
+
+    GPIO.setwarnings(False)  # Ignore warning for now
 
     GPIO.setmode(GPIO.BOARD)
 
@@ -82,45 +84,43 @@ try:
     GPIO.setup(v2_1, GPIO.OUT)
     GPIO.setup(v2_2, GPIO.OUT)
     GPIO.setup(v3_open, GPIO.OUT)
-    GPIO.setup(v3_open, GPIO.OUT)
+    GPIO.setup(v3_close, GPIO.OUT)
     GPIO.setup(v4_open, GPIO.OUT)
     GPIO.setup(v4_open, GPIO.OUT)
     GPIO.setup(v5_open, GPIO.OUT)
-    GPIO.setup(v5_open, GPIO.OUT)
+    GPIO.setup(v5_close, GPIO.OUT)
     GPIO.setup(p1, GPIO.OUT)
     GPIO.setup(p2, GPIO.OUT)
 
-    GPIO.setup(HL1, GPIO.IN)
-    GPIO.setup(HL2, GPIO.IN)
-    GPIO.setup(HL3, GPIO.IN)
-    GPIO.setup(LL1, GPIO.IN)
-    GPIO.setup(LL2, GPIO.IN)
+#    GPIO.setup(HL1, GPIO.IN)
+#    GPIO.setup(HL2, GPIO.IN)
+#    GPIO.setup(HL3, GPIO.IN)
+#    GPIO.setup(LL1, GPIO.IN)
+#    GPIO.setup(LL2, GPIO.IN)
 except ImportError:
     print("Not running RPi, can't import library")
-    
-
 
 
 def openV1():
     try:
-        print ("opning v1")
+        print("opning v1")
         GPIO.output(v1_open, GPIO.HIGH)
         sleep(1)
         GPIO.output(v1_close, GPIO.LOW)
         sleep(5)
-        print ("end opning v1")
+        print("end opning v1")
     except:
         print("RPI GPIO1 NOT EXIST")
 
 
-def closeV1():
+def closeV1():  # vi mA starte pump1
     try:
-        print ("closing v1")
-        GPIO.output(3, GPIO.LOW)
+        print("closing v1")
+        GPIO.output(v1_open, GPIO.LOW)
         sleep(1)
-        GPIO.output(5, GPIO.HIGH)
+        GPIO.output(v1_close, GPIO.HIGH)
         sleep(5)
-        print ("end closing v1")
+        print("end closing v1")
     except:
         print("RPI GPIO2 NOT EXIST")
 
@@ -128,17 +128,17 @@ def closeV1():
 def setV2(i):
     try:
         if i == 1:
-            print ("set_v2_1")
+            print("set_v2_1")
             GPIO.output(v2_1, GPIO.HIGH)
             sleep(1)
             GPIO.output(v2_2, GPIO.LOW)
-            print ("end set_v2_1")
+            print("end set_v2_1")
         elif i == 2:
-            print ("set_v2_2")
+            print("set_v2_2")
             GPIO.output(v2_1, GPIO.LOW)
             sleep(1)
             GPIO.output(v2_2, GPIO.HIGH)
-            print ("end set_v2_2")
+            print("end set_v2_2")
         sleep(5)
     except:
         print("RPI GPIO3 NOT EXIST")
@@ -146,100 +146,100 @@ def setV2(i):
 
 def openV3():
     try:
-        print ("open v3")
-        GPIO.output(v3_open, GPIO.HIGH)
+        print("open v3")
+        GPIO.output(v3_open, GPIO.LOW)
         sleep(1)
-        GPIO.output(v3_close, GPIO.LOW)
+        GPIO.output(v3_close, GPIO.HIGH)
         sleep(5)
-        print ("end open v3")
+        print("end open v3")
     except:
         print("RPI GPIO4 NOT EXIST")
 
 
 def closeV3():
     try:
-        print ("closing v3")
-        GPIO.output(v3_open, GPIO.LOW)
+        print("closing v3")
+        GPIO.output(v3_open, GPIO.HIGH)
         sleep(1)
-        GPIO.output(v3_close, GPIO.HIGH)
+        GPIO.output(v3_close, GPIO.LOW)
         sleep(5)
-        print ("end closing v3")
+        print("end closing v3")
     except:
         print("RPI GPIO5 NOT EXIST")
 
 
-def openV4():
-    try:
-        print ("open v4")
-        GPIO.output(v4_open, GPIO.HIGH)
-        sleep(1)
-        GPIO.output(v4_close, GPIO.LOW)
-        sleep(5)
-        print ("end open v4")
-    except:
-        print("RPI GPIO6 NOT EXIST")
+# def openV4():
+# try:
+# print ("open v4")
+# GPIO.output(v4_open, GPIO.HIGH)
+# sleep(1)
+# GPIO.output(v4_close, GPIO.LOW)
+# sleep(5)
+# print ("end open v4")
+# except:
+# print("RPI GPIO6 NOT EXIST")
 
 
-def closeV4():
-    try:
-        print ("closing v4")
-        GPIO.output(v4_open, GPIO.LOW)
-        sleep(1)
-        GPIO.output(v4_close, GPIO.HIGH)
-        sleep(5)
-        print ("end closing v4")
-    except:
-        print("RPI GPIO7 NOT EXIST")
+# def closeV4():
+# try:
+# print ("closing v4")
+# GPIO.output(v4_open, GPIO.LOW)
+# sleep(1)
+# GPIO.output(v4_close, GPIO.HIGH)
+# sleep(5)
+# print ("end closing v4")
+# except:
+# print("RPI GPIO7 NOT EXIST")
 
 
 def openV5():
     try:
-        print ("open v5")
+        print("open v5")
         GPIO.output(v5_open, GPIO.HIGH)
         sleep(1)
         GPIO.output(v5_close, GPIO.LOW)
         sleep(5)
-        print ("end open v5")
+        print("end open v5")
     except:
         print("RPI GPIO8 NOT EXIST")
 
 
 def closeV5():
     try:
-        print ("closing v5")
+        print("closing v5")
         GPIO.output(v5_open, GPIO.LOW)
         sleep(1)
         GPIO.output(v5_close, GPIO.HIGH)
         sleep(5)
-        print ("end closing v5")
+        print("end closing v5")
     except:
         print("RPI GPIO9 NOT EXIST")
 
 
 def startP1():
     try:
-        GPIO.output(p1, GPIO.HIGH)
+        GPIO.output(p1, GPIO.LOW)
     except:
         print("RPI GPIO10 NOT EXIST")
 
 
 def stopP1():
     try:
-        GPIO.output(p1, GPIO.LOW)
+        GPIO.output(p1, GPIO.HIGH)
     except:
         print("RPI GPIO11 NOT EXIST")
 
 
 def startP2():
     try:
-        GPIO.output(p2, GPIO.HIGH)
+        GPIO.output(p2, GPIO.LOW)
     except:
         print("RPI GPIO12 NOT EXIST")
 
 
 def stopP2():
     try:
-        GPIO.output(p2, GPIO.LOW)
+        GPIO.output(p2, GPIO.HIGH)
     except:
         print("RPI GPIO13 NOT EXIST")
 
@@ -248,33 +248,35 @@ def state1():
     print("Close all valves and pumps")
     try:
         closeV1()
+        ###print("end close V1")
         setV2(1)
+        ###print("end setV2(1)")
         closeV3()
-        closeV4()
-        print ("end close v4")
+        ###print("end close V3")
+        # closeV4()
+        # print ("end close v4")
         closeV5()
-        print ("end close v5")
+        print("end close v5")
         stopP1()
-        print ("end stop p1")
+        print("end stop p1")
         stopP2()
-        print ("end stop p2")
+        print("end stop p2")
     except:
         print("RPI GPIO NOT EXISTTT")
 
-    print ("start serial write")
+    print("start serial write")
     ser.write(b'You shall Turn off H1\r\n')
-    print ("end serial write")
+    print("end serial write")
     waitForResponseAndPrint("Turn off H1")
-    print ("end wait for response")
+    print("end wait for response")
     waitForResponseAndPrint("turned off H1")
 
     ser.write(b'You shall Turn off H3\r\n')
     waitForResponseAndPrint("Turn off H3")
     waitForResponseAndPrint("turned off H3")
 
-
     temp = ser.readline()
-    print ("temp" + temp)
+    print("temp" + temp)
     print("All valves and pumps are now closed")
 
     return 2
@@ -294,19 +296,35 @@ def state2():
     print("Fill HLT start")
     global simHLTliter
     global state2_firstRun
-    
+    global highLevel
+
+    print("start serial write to get high level HLT")
+    ser.write(b'You shall Give HL1\r\n')
+    print("end serial write")
+    waitForResponseAndPrint("Give HL1")
+    print("end wait for response")
+    temp = waitForResponseAndPrint("gave HL1")
+
+    if "HL1" in temp:
+        data = temp
+
+    highLevel = float(data.split(b':')[1])
+    print("The number of liters in HLT is: " + str(highLevel))
+    if highLevel > 400:
+        startP1()
     if state2_firstRun:
-      openV1()
-      state2_firstRun = False
+        openV1()
+        state2_firstRun = False
 
     if simulation:
         simHLTliter += 1
         print("SimHLTliter: " + str(simHLTliter))
         time.sleep(1)
 
-    if GPIO.input(HL1) == 1 or simHLTliter == 1000:
+    if highLevel > 1100.0 or simHLTliter == 10:
         try:
             closeV1()
+            ###         startP1()
             return 3
         except:
             print("Not rpi")
@@ -347,34 +365,52 @@ def state3():
     if not "sent me" in temp:
         data = temp
 
-    print ("Awesome data is:")
-    print (data)
-
+    print("Awesome data is:")
+    print(data)
 
     x = data.split(b';')
 
+    # Maybe remove minus 2
     if float(x[2].split(b':')[1]) < meshTempSP -2:
         return 3
     else:
+        print("start serial write")
+        ser.write(b'You shall Turn off H1\r\n')
+        print("end serial write")
+        waitForResponseAndPrint("Turn off H1")
+        print("end wait for response")
+        waitForResponseAndPrint("turned off H1")
         return 4
 
 
 def state4():
     global simHLTliter
     global simMeshLiter
+    global highLevel
+
+    print("start serial write to get high level HLT")
+    ser.write(b'You shall Give HL1\r\n')
+    print("end serial write")
+    waitForResponseAndPrint("Give HL1")
+    print("end wait for response")
+    temp = waitForResponseAndPrint("gave HL1")
+
+    if "HL1" in temp:
+        data = temp
+
+    highLevel = float(data.split(b':')[1])
+    print("The number of liters in HLT is: " + str(highLevel))
     print("Fill mesh")
     openV3()
-    startP2()
 
     if simulation == True:
         simMeshLiter += 1
         print("Mesh-liter: " + str(simMeshLiter))
 
-    if GPIO.input(HL2) == 1 or simMeshLiter == 10:
+    if highLevel < 950.0 or simMeshLiter == 10:
         if simulation:
             simHLTliter = 0
         closeV3()
-        stopP2()
         return 5
     else:
         return 4
@@ -385,17 +421,33 @@ def state5():
     global simHLTliter
     global state5_firstRun_open
     global state5_firstRun_close
+    global highLevel
+
+    print("start serial write to get high level HLT")
+    ser.write(b'You shall Give HL1\r\n')
+    print("end serial write")
+    waitForResponseAndPrint("Give HL1")
+    print("end wait for response")
+    temp = waitForResponseAndPrint("gave HL1")
+
+    if "HL1" in temp:
+        data = temp
+
+    highLevel = float(data.split(b':')[1])
+
+
+
     if state5_firstRun_open:
-      openV1()
-      state5_firstRun_open = False
+        openV1()
+        state5_firstRun_open = False
     if simulation and simHLTliter < 10:
         simHLTliter += 1
         print("Liters in HLT: " + str(simHLTliter))
 
-    if HL1 == 1 or simHLTliter >= 10:
+    if highLevel > 1100.0 or simHLTliter >= 10:
         if state5_firstRun_close:
-          closeV1()
-          state5_firstRun_close = False
+            closeV1()
+            state5_firstRun_close = False
     return 6
 
 
@@ -403,6 +455,7 @@ def state6():
     global circulationTempSP
     print("Heating HLT " + str(circulationTempSP) + " degrees")
     global hltTemp
+    #global highLevel
     ser.write(b'You shall start PID SP;HLT;' + bytes(str(circulationTempSP)) + b'\r\n')
     # if simulation == True:
     #     global simHLTtemp
@@ -432,10 +485,11 @@ def state6():
     print("Awesome data is:")
     print(data)
 
-
     x = data.split(b';')
     hltTemp = float(x[2].split(b':')[1])
+    #highLevel = float(x[5].split(b':')[1])
     print("The temperature in HLT " + str(circulationTempSP) + " is: " + str(hltTemp))
+    #print("Liters in HLT: " + str(highLevel))
     return 7
 
 
@@ -465,7 +519,6 @@ def state8():
     print("Circulation")
     currentTime = time.time()
     if circulationTimerStart == 0.0:
-        openV4()
         startP1()
         circulationTimerStart = time.time()
         print("circulation timer started...")
@@ -484,21 +537,34 @@ def state9():
     global simBoilLiter
     global hltTemp
     global boilTempSP
+    global highLevel
 
-    if (GPIO.input(HL3) == 1 or simBoilLiter >= 10):
-        stopP1() # Maybe we can remove this.
+    print("start serial write to get high level HLT")
+    ser.write(b'You shall Give HL3\r\n')
+    print("end serial write")
+    waitForResponseAndPrint("Give HL3")
+    print("end wait for response")
+    temp = waitForResponseAndPrint("gave HL3")
+
+    if "HL3" in temp:
+        data = temp
+
+    highLevel = float(data.split(b':')[1])
+
+    if (highLevel > 1000.0 or simBoilLiter >= 10):
+        stopP1()  # Maybe we can remove this.
     else:
         if state9_firstRun:
             setV2(2)
-            #startP1()
+            # startP1()
 
         if simulation:
             simBoilLiter += 1
-            print ("Boil has " + str(simBoilLiter) + " Liters ")
+            print("Boil has " + str(simBoilLiter) + " Liters ")
 
-    if GPIO.input(LL2) == 1 or simBoilLiter > 2:
+    if highLevel > 600 or simBoilLiter > 2:
 
-# WE NEED TO CALIBRATE OR FIX BOIL SENSOR SO THAT IT IS CORRECT ON 100 DEGREES
+        # WE NEED TO CALIBRATE OR FIX BOIL SENSOR SO THAT IT IS CORRECT ON 100 DEGREES
         ser.write(b'You shall start PID SP;Boil;80\r\n')
         waitForResponseAndPrint("PID SP;Boil")
         temp = waitForResponseAndPrint("PID FB")
@@ -556,15 +622,30 @@ def state9():
 def state10():
     print("Rinse")
     global simMeshLiter
-    global rinseTimerStart #Rinse timer can later be changed to Flow Controller
+    global rinseTimerStart  # Rinse timer can later be changed to Flow Controller
     global rinseProcessDone
+    global highLevel
+
+    print("start serial write to get high level HLT")
+    ser.write(b'You shall Give HL1\r\n')
+    print("end serial write")
+    waitForResponseAndPrint("Give HL1")
+    print("end wait for response")
+    temp = waitForResponseAndPrint("gave HL1")
+
+    if "HL1" in temp:
+        data = temp
+
+    highLevel = float(data.split(b':')[1])
+    startP1()
+
     if simulation:
 
         if simMeshLiter > 1:
             simMeshLiter -= 1
             print("Remaining simMeshLiter: " + str(simMeshLiter))
 
-    if (GPIO.input(LL1) == 0 or simMeshLiter <= 1) and rinseTimerStart == 0.0:
+    if (highLevel < 800 or simMeshLiter <= 1) and rinseTimerStart == 0.0:
         openV3()
         startP2()
         rinseTimerStart = time.time()
@@ -602,11 +683,10 @@ def state11():
 
 def state12():
     print("Fill yeast bucket")
-    print ("Please open V5")
+    print("Please open V5")
     return 12
-    #print("clean up") 
-    #GPIO.cleanup() # cleanup all GPIO 
-       
+    # print("clean up")
+    # GPIO.cleanup() # cleanup all GPIO
 
 
 def default():

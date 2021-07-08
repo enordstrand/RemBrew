@@ -3,15 +3,17 @@
 
 static const int H1 = D0;
 static const int H3 = D1;
-static const int T1 = A0;
-static const int T2 = A1;
+static const int T1 = A1;
+static const int T2 = A0;
 static const int T3 = A2;
+static const int HL1 = A5;
+static const int HL3 = A3;
 static const int windowSize = 5000;
 static const float gain = (100 - 0.9)/(3700-75);
 
 double setpoint1, input1, output1;
 double setpoint3, input3, output3;
-double kp=300, ki=0, kd=0;
+double kp=1700, ki=0, kd=0;
 long now, windowStartTime;
 long counter = 0;
 double sensorValue1 = 0;
@@ -23,6 +25,7 @@ double meansensorValue3 = 0;
 double temp1 = 0;
 double temp2 = 0;
 double temp3 = 0;
+double highLevel = 0;
 char HState;
 String firstVal, secondVal, thirdVal;
 
@@ -33,10 +36,12 @@ PID myPID3(&temp3, &output3, &setpoint3, kp, ki, kd, PID::DIRECT);
 
 void setup() {
     Serial.begin(9600);
+    pinMode (T1, INPUT);
     pinMode (T3, INPUT);
+    pinMode (HL1, INPUT);
+    pinMode (HL3, INPUT);
     pinMode(H1, OUTPUT);
     pinMode(H3, OUTPUT);
-    pinMode(H1, OUTPUT);
     myPID1.SetMode(PID::AUTOMATIC);
     myPID1.SetOutputLimits(0, windowSize);
     myPID3.SetMode(PID::AUTOMATIC);
@@ -65,6 +70,30 @@ void loop() {
         digitalWrite(H3, LOW);
         Serial.println("photon turned off H3");
         //delay(1000);
+    } else if (data.indexOf("Give HL") > 0 && dataReceived) {
+        int manometer;
+        int highLevelBucket = 0;
+        String manometerId;
+        if (data.indexOf("HL1")) {
+            manometer = HL1;
+            manometerId = "HL1";
+        } else if (data.indexOf("HL3")) {
+            manometer = HL3;
+            manometerId = "HL3";
+        } else {
+            Serial.println("Syntax Error HL");
+        }
+        
+        for(int j = 1 ; j<=200 ;  j++) {
+            int highLevelTemp = analogRead(manometer);
+            highLevelBucket = highLevelBucket + highLevelTemp;
+        }
+        
+        int highLevelValue = highLevelBucket/200;
+        highLevel = highLevelValue; // Convert this value to liter
+        
+        Serial.println("photon gave " + manometerId + ":" + String(highLevel));
+        
     } else if (data.indexOf("start PID SP;") > 0 && dataReceived) {
         //int tempBucket = 0;
         //String firstVal, secondVal, thirdVal;
@@ -85,26 +114,35 @@ void loop() {
         }
         
         int tempSensor;
+        //int manometer;
         int tempBucket = 0;
+        //int highLevelBucket = 0;
         if (secondVal == "HLT") {
             tempSensor = T1;
+            //manometer = HL1;
         } else if (secondVal == "Boil") {
             tempSensor = T3;
+            //manometer = HL3;
         }
         for(int j = 1 ; j<=200 ;  j++) {  
-            int temp = analogRead(tempSensor);
-            tempBucket = tempBucket + temp;  
+            int temperatureTemp = analogRead(tempSensor);
+            //int highLevelTemp = analogRead(manometer);
+            tempBucket = tempBucket + temperatureTemp; 
+            //highLevelBucket = highLevelBucket + highLevelTemp;
         }
         
         int sp = thirdVal.toInt();
         int tempValue = tempBucket/200;
+        //int highLevelValue = highLevelBucket/200;
         if (secondVal == "HLT") {
             temp1 = tempValue * gain;
+            //highLevel1 = highLevelValue; // Convert this value to liter
             
             
             setpoint1 = sp;
         } else if (secondVal == "Boil") {
             temp3 = tempValue * gain;
+            //highLevel3 = highLevelValue; // Convert this value to liter
             setpoint3 = sp;
         }
         
@@ -149,6 +187,7 @@ void doPid(String secondVal) {
             HState = 'L';
         }
         Serial.print("PID FB;HLT;T1:" + String(temp1) + ";W1:" + String(output1) + ";H1State:" + String(HState));
+        //Serial.print("PID FB;HLT;T1:" + String(temp1) + ";W1:" + String(output1) + ";H1State:" + String(HState) + ";HL1:" + String(highLevel1));
         Serial.print('\n');
         //delay(1000);
 
@@ -162,6 +201,7 @@ void doPid(String secondVal) {
             HState = 'L';
         }
         Serial.print("PID FB;Boil;T3:" + String(temp3) + ";W3:" + String(output3) + ";H3State:" + String(HState));
+        //Serial.print("PID FB;Boil;T3:" + String(temp3) + ";W3:" + String(output3) + ";H3State:" + String(HState) + ";HL3:" + String(highLevel3));
         Serial.print('\n');
         //delay(1000);
     }
