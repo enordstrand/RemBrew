@@ -22,11 +22,11 @@ circulationTimerStart = 0.0
 rinseTimerStart = 0.0
 boilTimerStart = 0.0
 
-meshTime = 4500
-circulationTime = 300
-rinseTime = 300
-boilTime1 = 300
-boilTime2 = 300
+meshTime = 450.0
+circulationTime = 300.0
+rinseTime = 300.0
+boilTime1 = 300.0
+boilTime2 = 300.0
 
 hltTemp = 0.0
 heightLevel = 0.0
@@ -373,7 +373,7 @@ def state4():
     print("Fill mesh")
     openV3()
 
-    if heightLevel < 540.0:
+    if heightLevel < 580.0:
         closeV3()
         stopP1()
         return 5
@@ -455,12 +455,15 @@ def state7():
         return 5
     elif currentTime - meshTimerStart < meshTime:
         print("Still meshing at time: " + str(currentTime - meshTimerStart))
+        print(currentTime)
         return 5
     elif currentTime - meshTimerStart >= meshTime and hltTemp >= circulationTempSP - 2:
         print("Reached " + str(circulationTempSP) + " degrees and " + str(meshTime / 60.0) + " minutes, continuing!")
+        print(meshTimerStart)
         return 8
     else:
         print("Looping while waiting for something to finish...")
+        print(meshTime)
         return 5
 
 

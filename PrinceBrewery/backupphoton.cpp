@@ -84,12 +84,12 @@ void loop() {
             Serial.println("Syntax Error HL");
         }
         
-        for(int j = 1 ; j<=200 ;  j++) {
+        for(int j = 1 ; j<=30000 ;  j++) {
             int highLevelTemp = analogRead(manometer);
             highLevelBucket = highLevelBucket + highLevelTemp;
         }
         
-        int highLevelValue = highLevelBucket/200;
+        int highLevelValue = highLevelBucket/30000;
         highLevel = highLevelValue; // Convert this value to liter
         
         Serial.println("photon gave " + manometerId + ":" + String(highLevel));
@@ -124,7 +124,7 @@ void loop() {
             tempSensor = T3;
             //manometer = HL3;
         }
-        for(int j = 1 ; j<=200 ;  j++) {  
+        for(int j = 1 ; j<=10000 ;  j++) {  
             int temperatureTemp = analogRead(tempSensor);
             //int highLevelTemp = analogRead(manometer);
             tempBucket = tempBucket + temperatureTemp; 
@@ -132,7 +132,7 @@ void loop() {
         }
         
         int sp = thirdVal.toInt();
-        int tempValue = tempBucket/200;
+        int tempValue = tempBucket/10000;
         //int highLevelValue = highLevelBucket/200;
         if (secondVal == "HLT") {
             temp1 = tempValue * gain;
