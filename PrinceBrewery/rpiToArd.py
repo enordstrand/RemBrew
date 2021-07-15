@@ -16,6 +16,10 @@ meshTempSP = 20.0
 circulationTempSP = 25.0
 # boilTempSP = 80.0
 boilTempSP = 30.0
+heightLevelMinimumSP = 600.0
+heightLevelMaximumSP = 620.0
+refillHLTSP = 630.0
+rinseLiter = 50.0
 
 meshTimerStart = 0.0
 circulationTimerStart = 0.0
@@ -241,11 +245,11 @@ def state1():
     print("Close all valves and pumps")
     try:
         closeV1()
-        ###print("end close V1")
+        # print("end close V1")
         setV2(1)
-        ###print("end setV2(1)")
+        # print("end setV2(1)")
         closeV3()
-        ###print("end close V3")
+        # print("end close V3")
         # closeV4()
         # print ("end close v4")
         closeV5()
@@ -269,7 +273,7 @@ def state1():
     waitForResponseAndPrint("turned off H3")
 
     temp = ser.readline()
-    print("temp" + temp)
+    print("temp" + str(temp))
     print("All valves and pumps are now closed")
 
     return 2
@@ -277,10 +281,10 @@ def state1():
 
 
 def waitForResponseAndPrint(expectedMessage):
-    while (True):
+    while True:
         confirmation = ser.readline()
-        if (expectedMessage in confirmation):
-            print("response: " + confirmation)
+        if expectedMessage in confirmation:
+            print("response: " + str(confirmation))
             return confirmation
             # break
 
@@ -302,15 +306,16 @@ def state2():
 
     heightLevel = float(data.split(b':')[1])
     print("The number of liters in HLT is: " + str(heightLevel))
-    if heightLevel > 600.0:
+    if state2_firstRun:
+        openV1()
+        state2_firstRun = False
+
+    if heightLevel > heightLevelMinimumSP:
         startP1()
     else:
         stopP1()
-#    if state2_firstRun:
-        openV1()
-#        state2_firstRun = False
 
-    if heightLevel > 620.0:
+    if heightLevel > heightLevelMaximumSP:
         try:
             closeV1()
             return 3
@@ -386,6 +391,7 @@ def state5():
     global state5_firstRun_open
     global state5_firstRun_close
     global heightLevel
+    global refillHLTSP
 
     print("start serial write to get high level HLT")
     ser.write(b'You shall Give HL1\r\n')
@@ -407,7 +413,8 @@ def state5():
     if heightLevel > 600.0:
         if state5_firstRun_close:
             startP1()
-    if heightLevel > 630.0:
+
+    if heightLevel > refillHLTSP:
         if state5_firstRun_close:
             closeV1()
             state5_firstRun_close = False
@@ -459,7 +466,12 @@ def state7():
         return 5
     elif currentTime - meshTimerStart >= meshTime and hltTemp >= circulationTempSP - 2:
         print("Reached " + str(circulationTempSP) + " degrees and " + str(meshTime / 60.0) + " minutes, continuing!")
-        print(meshTimerStart)
+        print("meshTimerSTart: " + str(meshTimerStart))
+        print("currentTime: " + str(currentTime))
+        print("meshTimerStart: " + str(meshTimerStart))
+        print("mathcurrMinusMeshTim: " + str(currentTime - meshTimerStart))
+        print("meshTime: " + str(meshTime))
+        print("meshTimeInSeconds: " + str(meshTime/60.0))
         return 8
     else:
         print("Looping while waiting for something to finish...")
@@ -473,6 +485,8 @@ def state8():
     currentTime = time.time()
     if circulationTimerStart == 0.0:
         circulationTimerStart = time.time()
+        startP2()
+        setV2(1)
         print("circulation timer started...")
         return 8
     elif currentTime - circulationTimerStart < circulationTime:
@@ -480,8 +494,6 @@ def state8():
         return 8
     elif currentTime - circulationTimerStart >= circulationTime:
         print("Reached 80 minutes circulation at 80 degrees. Continuing!")
-        startP2()
-        setV2(1)
         return 9
 
 
@@ -505,23 +517,16 @@ def state9():
     heightLevel = float(data.split(b':')[1])
 
     if heightLevel > 620.0:
-        stopP1()  # Maybe we can remove this.
+        stopP2()  # Maybe we can remove this.
     else:
         if state9_firstRun:
             setV2(2)
-            # startP1()
     if heightLevel > 600.0:
 #   WE NEED TO CALIBRATE OR FIX BOIL SENSOR SO THAT IT IS CORRECT ON 100 DEGREES
-        ser.write(b'You shall start PID SP;Boil;80\r\n')
+        ser.write(b'You shall start PID SP;Boil;' + bytes(str(boilTempSP)) + b'\r\n')
         waitForResponseAndPrint("PID SP;Boil")
         temp = waitForResponseAndPrint("PID FB")
 
-        # temp3 = ser.readline()
-        # print("the temp3 is:")
-        # print(temp3)
-        # temp = ser.readline()
-        # print("the temp is:")
-        # print(temp)
         if "Boil" in temp:
             data = temp
 
@@ -558,6 +563,7 @@ def state10():
     global rinseTimerStart  # Rinse timer can later be changed to Flow Controller
     global rinseProcessDone
     global heightLevel
+    global rinseLiter
 
     print("start serial write to get high level HLT")
     ser.write(b'You shall Give HL1\r\n')
@@ -570,21 +576,13 @@ def state10():
         data = temp
 
     heightLevel = float(data.split(b':')[1])
-    startP1()
 
-    if heightLevel < 800.0:
-        openV3()
-        startP2()
-        rinseTimerStart = time.time()
-        print("The rinse timer has started")
-    current_time = time.time()     
-    if rinseTimerStart > 0.0 and rinseProcessDone == False:
-        print("The rinse process has last for: " + str(current_time - rinseTimerStart) + " seconds.")
-    if rinseTimerStart > 0.0 and (current_time - rinseTimerStart > rinseTime):
-        closeV3()
-        stopP2()
-        print("rinseProcessDone")
+    if heightLevel < refillHLTSP-rinseLiter and rinseProcessDone == False:
+        stopP1()
         rinseProcessDone = True
+        print("Done pumping fresh water to mesh")
+    else:
+        startP1()
 
     return 9
 
