@@ -1,4 +1,4 @@
-// This #include statement was automatically added by the Particle IDE.
+ // This #include statement was automatically added by the Particle IDE.
 #include <pid.h>
 
 static const int H1 = D0;
@@ -58,14 +58,14 @@ void loop() {
         Serial.print('\n');
         dataReceived = true;
 
-        
+
     }
 
     if (data.indexOf("Turn off H1") > 0 && dataReceived) {
         digitalWrite(H1, LOW);
         Serial.println("photon turned off H1");
         //delay(1000);
-    
+
     } else if (data.indexOf("Turn off H3") > 0 && dataReceived) {
         digitalWrite(H3, LOW);
         Serial.println("photon turned off H3");
@@ -74,30 +74,29 @@ void loop() {
         int manometer;
         int highLevelBucket = 0;
         String manometerId;
-        if (data.indexOf("HL1")) {
+        if (data.indexOf("HL1") > 0) {
             manometer = HL1;
             manometerId = "HL1";
-        } else if (data.indexOf("HL3")) {
+        } else if (data.indexOf("HL3") > 0) {
             manometer = HL3;
             manometerId = "HL3";
         } else {
             Serial.println("Syntax Error HL");
         }
-        
+
         for(int j = 1 ; j<=30000 ;  j++) {
             int highLevelTemp = analogRead(manometer);
             highLevelBucket = highLevelBucket + highLevelTemp;
         }
-        
+
         int highLevelValue = highLevelBucket/30000;
         highLevel = highLevelValue; // Convert this value to liter
-        
         Serial.println("photon gave " + manometerId + ":" + String(highLevel));
-        
+
     } else if (data.indexOf("start PID SP;") > 0 && dataReceived) {
         //int tempBucket = 0;
         //String firstVal, secondVal, thirdVal;
-        
+
         for (int i = 0; i < data.length(); i++) {
           if (data.substring(i, i+1) == ";") {
             firstVal = data.substring(0, i);
@@ -108,11 +107,11 @@ void loop() {
                     break;
                 }
             }
-            
+
             break;
           }
         }
-        
+
         int tempSensor;
         //int manometer;
         int tempBucket = 0;
@@ -124,40 +123,36 @@ void loop() {
             tempSensor = T3;
             //manometer = HL3;
         }
-        for(int j = 1 ; j<=10000 ;  j++) {  
+        for(int j = 1 ; j<=10000 ;  j++) {
             int temperatureTemp = analogRead(tempSensor);
             //int highLevelTemp = analogRead(manometer);
-            tempBucket = tempBucket + temperatureTemp; 
+            tempBucket = tempBucket + temperatureTemp;
             //highLevelBucket = highLevelBucket + highLevelTemp;
         }
-        
+
         int sp = thirdVal.toInt();
         int tempValue = tempBucket/10000;
         //int highLevelValue = highLevelBucket/200;
         if (secondVal == "HLT") {
             temp1 = tempValue * gain;
             //highLevel1 = highLevelValue; // Convert this value to liter
-            
-            
+
+
             setpoint1 = sp;
         } else if (secondVal == "Boil") {
             temp3 = tempValue * gain;
             //highLevel3 = highLevelValue; // Convert this value to liter
             setpoint3 = sp;
         }
-        
+
         doPid(secondVal);
-    
-        
+
+
     } else {
-       
-        //Spark.publish("toRpi","Error from photon");
+
+        Spark.publish("toRpi","Error from photon");
         //Serial.println(", Error from photon1");
         //delay(1000);
-    }
-    
-    if (data.indexOf("start PID SP;") > 0) {
-        
     }
 }
 

@@ -26,8 +26,8 @@ circulationTimerStart = 0.0
 rinseTimerStart = 0.0
 boilTimerStart = 0.0
 
-meshTime = 450.0
-circulationTime = 300.0
+meshTime = 60.0 #450
+circulationTime = 60.0 #300
 rinseTime = 300.0
 boilTime1 = 300.0
 boilTime2 = 300.0
@@ -277,7 +277,7 @@ def state1():
     print("All valves and pumps are now closed")
 
     return 2
-    # return 8
+    # return 9
 
 
 def waitForResponseAndPrint(expectedMessage):
@@ -466,12 +466,12 @@ def state7():
         return 5
     elif currentTime - meshTimerStart >= meshTime and hltTemp >= circulationTempSP - 2:
         print("Reached " + str(circulationTempSP) + " degrees and " + str(meshTime / 60.0) + " minutes, continuing!")
-        print("meshTimerSTart: " + str(meshTimerStart))
-        print("currentTime: " + str(currentTime))
-        print("meshTimerStart: " + str(meshTimerStart))
-        print("mathcurrMinusMeshTim: " + str(currentTime - meshTimerStart))
-        print("meshTime: " + str(meshTime))
-        print("meshTimeInSeconds: " + str(meshTime/60.0))
+        # print("meshTimerSTart: " + str(meshTimerStart))
+        # print("currentTime: " + str(currentTime))
+        # print("meshTimerStart: " + str(meshTimerStart))
+        # print("mathcurrMinusMeshTim: " + str(currentTime - meshTimerStart))
+        # print("meshTime: " + str(meshTime))
+        # print("meshTimeInSeconds: " + str(meshTime/60.0))
         return 8
     else:
         print("Looping while waiting for something to finish...")
@@ -491,7 +491,7 @@ def state8():
         return 8
     elif currentTime - circulationTimerStart < circulationTime:
         print("Still circulating at time: " + str(currentTime - circulationTimerStart))
-        return 8
+        return 6 # Change this to 6
     elif currentTime - circulationTimerStart >= circulationTime:
         print("Reached 80 minutes circulation at 80 degrees. Continuing!")
         return 9
@@ -503,24 +503,31 @@ def state9():
     global hltTemp
     global boilTempSP
     global heightLevel
+    global state9_firstRun
 
-    print("start serial write to get high level HLT")
+    print("start serial write to get high level Boil")
     ser.write(b'You shall Give HL3\r\n')
     print("end serial write")
     waitForResponseAndPrint("Give HL3")
-    print("end wait for response")
+    print("end wait for response first")
     temp = waitForResponseAndPrint("gave HL3")
+    print ("end wait for response second")
 
     if "HL3" in temp:
         data = temp
 
     heightLevel = float(data.split(b':')[1])
 
-    if heightLevel > 620.0:
+    if heightLevel > 1000.0: # 620.0
+        print("INSIDE IF")
         stopP2()  # Maybe we can remove this.
     else:
+        print("INSIDE ELSE")
         if state9_firstRun:
+            startP2() #Redundant
+            print("INSIDE ELSE IF")
             setV2(2)
+            #state9_firstRun = False
     if heightLevel > 600.0:
 #   WE NEED TO CALIBRATE OR FIX BOIL SENSOR SO THAT IT IS CORRECT ON 100 DEGREES
         ser.write(b'You shall start PID SP;Boil;' + bytes(str(boilTempSP)) + b'\r\n')
