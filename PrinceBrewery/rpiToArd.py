@@ -26,7 +26,7 @@ circulationTimerStart = 0.0
 rinseTimerStart = 0.0
 boilTimerStart = 0.0
 
-meshTime = 60.0 #450
+meshTime = 200.0 #450 #200
 circulationTime = 60.0 #300
 rinseTime = 300.0
 boilTime1 = 300.0
@@ -40,7 +40,7 @@ rinseProcessDone = False
 # OUTPUTS
 v1_close = 3
 v1_open = 5
-v2_circulation = 7
+v2_circulation = 29 #7
 v2_boil = 11
 v3_HLT = 13
 v3_mesh = 15
@@ -141,7 +141,7 @@ def setV2(i):
         print("RPI GPIO3 NOT EXIST")
 
 
-def openV3():
+def setV3Mesh():
     try:
         print("open v3")
         GPIO.output(v3_HLT, GPIO.LOW)
@@ -153,7 +153,7 @@ def openV3():
         print("RPI GPIO4 NOT EXIST")
 
 
-def closeV3():
+def setV3HLT():
     try:
         print("closing v3")
         GPIO.output(v3_HLT, GPIO.HIGH)
@@ -248,7 +248,7 @@ def state1():
         # print("end close V1")
         setV2(1)
         # print("end setV2(1)")
-        closeV3()
+        setV3HLT()
         # print("end close V3")
         # closeV4()
         # print ("end close v4")
@@ -287,6 +287,19 @@ def waitForResponseAndPrint(expectedMessage):
             print("response: " + str(confirmation))
             return confirmation
             # break
+
+def state42():
+    print("Test circulation")
+    startP1()
+    setV3Mesh()
+    sleep(10)
+    return 1337
+
+def state1337():
+    print("Test fill boil")
+    setV3HLT()
+    sleep(10)
+    return 42
 
 
 def state2():
@@ -376,10 +389,10 @@ def state4():
     heightLevel = float(data.split(b':')[1])
     print("The number of liters in HLT is: " + str(heightLevel))
     print("Fill mesh")
-    openV3()
+    setV3Mesh()
 
     if heightLevel < 580.0:
-        closeV3()
+        setV3HLT()
         stopP1()
         return 5
     else:
@@ -491,7 +504,7 @@ def state8():
         return 8
     elif currentTime - circulationTimerStart < circulationTime:
         print("Still circulating at time: " + str(currentTime - circulationTimerStart))
-        return 6 # Change this to 6
+        return 6
     elif currentTime - circulationTimerStart >= circulationTime:
         print("Reached 80 minutes circulation at 80 degrees. Continuing!")
         return 9
@@ -528,7 +541,7 @@ def state9():
             print("INSIDE ELSE IF")
             setV2(2)
             #state9_firstRun = False
-    if heightLevel > 600.0:
+    if heightLevel > 780.0:
 #   WE NEED TO CALIBRATE OR FIX BOIL SENSOR SO THAT IT IS CORRECT ON 100 DEGREES
         ser.write(b'You shall start PID SP;Boil;' + bytes(str(boilTempSP)) + b'\r\n')
         waitForResponseAndPrint("PID SP;Boil")
@@ -589,6 +602,7 @@ def state10():
         rinseProcessDone = True
         print("Done pumping fresh water to mesh")
     else:
+        setV3Mesh()
         startP1()
 
     return 9
@@ -639,6 +653,8 @@ switcher = {
     10: state10,
     11: state11,
     12: state12,
+    42: state42,
+    1337: state1337,
     13: default
 }
 
@@ -649,6 +665,6 @@ def switch(brewState):
 
 if __name__ == '__main__':
     state = 1
-    while state <= 13:
+    while state <= 13 or state == 42 or state == 1337:
         state = switch(state)
         print("next state is: " + str(state))

@@ -172,7 +172,7 @@ void doPid(String secondVal) {
     if (now - windowStartTime > windowSize) {
         windowStartTime = now;
     }
-    
+
     if (secondVal == "HLT") {
         if ((windowOpening > now - windowStartTime) && windowOpening > 100 && tempVal > -1) {
         digitalWrite(H1, HIGH);
@@ -200,5 +200,5 @@ void doPid(String secondVal) {
         Serial.print('\n');
         //delay(1000);
     }
-     
+
 }
