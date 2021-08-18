@@ -637,7 +637,7 @@ def state12():
 
 def default():
     print("Brew finished")
-    return 42
+    return 20
 
 
 switcher = {
