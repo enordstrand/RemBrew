@@ -2,7 +2,7 @@
 #include <pid.h>
 
 static const int H1 = D0;
-static const int H3 = D1;
+static const int H3 = D2;
 static const int T1 = A1;
 static const int T2 = A0;
 static const int T3 = A2;
