@@ -288,19 +288,6 @@ def waitForResponseAndPrint(expectedMessage):
             return confirmation
             # break
 
-def state42():
-    print("Test circulation")
-    startP1()
-    setV3Mesh()
-    sleep(10)
-    return 1337
-
-def state1337():
-    print("Test fill boil")
-    setV3HLT()
-    sleep(10)
-    return 42
-
 
 def state2():
     print("Fill HLT start")
@@ -391,7 +378,7 @@ def state4():
     print("Fill mesh")
     setV3Mesh()
 
-    if heightLevel < 580.0:
+    if heightLevel < 450.0:
         setV3HLT()
         stopP1()
         return 5
