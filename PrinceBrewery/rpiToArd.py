@@ -40,7 +40,7 @@ rinseProcessDone = False
 # OUTPUTS
 v1_close = 3
 v1_open = 5
-v2_circulation = 29 #7
+v2_circulation = 37 #7, 29
 v2_boil = 11
 v3_HLT = 13
 v3_mesh = 15
