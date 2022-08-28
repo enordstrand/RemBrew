@@ -1,7 +1,16 @@
 from time import sleep  # Import the sleep function from the time module
-
+import serial
 # OUTPUTS
 from pip._vendor.distlib.compat import raw_input
+
+ser = serial.Serial(
+    port='/dev/ttyACM0',  # Replace ttyS0 with ttyAM0 for Pi1,Pi2,Pi0
+    baudrate=9600,
+    parity=serial.PARITY_NONE,
+    stopbits=serial.STOPBITS_ONE,
+    bytesize=serial.EIGHTBITS,
+    timeout=1
+)
 
 v1_close = 3
 v1_open = 5
@@ -195,6 +204,42 @@ def stopP2():
         print("RPI GPIO13 NOT EXIST")
 
 
+def startH1():
+    try:
+        print("Starting H1")
+        ser.write(b'You shall start PID SP;HLT;' + bytes(str(100)) + b'\r\n')
+        print("end starting H1")
+    except:
+        print("Something wring with Serial communication H1")
+
+
+def stopH1():
+    try:
+        print("Stopping H1")
+        ser.write(b'You shall Turn off H1\r\n')
+        print("end stopping H1")
+    except:
+        print("Something wring with Serial communication H1")
+
+
+def startH3():
+    try:
+        print("Starting H3")
+        ser.write(b'You shall start PID SP;Boil;' + bytes(str(100)) + b'\r\n')
+        print("end starting H3")
+    except:
+        print("Something wring with Serial communication H3")
+
+
+def stopH3():
+    try:
+        print("Stopping H3")
+        ser.write(b'You shall Turn off H3\r\n')
+        print("end stopping H3")
+    except:
+        print("Something wring with Serial communication H3")
+
+
 while True:  # Run forever
     value = raw_input("Please enter a string:\n")
 
@@ -233,6 +278,18 @@ while True:  # Run forever
 
     elif "stopP2" in str(value):
         stopP2()
+
+    elif "startH1" in str(value):
+        startH1()
+
+    elif "stopH1" in str(value):
+        stopH1()
+
+    elif "startH3" in str(value):
+        startH3()
+
+    elif "stopH3" in str(value):
+        stopH3()
 
     elif "reset" in str(value):
         closeV1()
