@@ -288,7 +288,6 @@ def waitForResponseAndPrint(expectedMessage):
             return confirmation
             # break
 
-
 def state2():
     print("Fill HLT start")
     global state2_firstRun
@@ -378,7 +377,7 @@ def state4():
     print("Fill mesh")
     setV3Mesh()
 
-    if heightLevel < 450.0:
+    if heightLevel < 550.0:
         setV3HLT()
         stopP1()
         return 5
@@ -650,8 +649,6 @@ switcher = {
     10: state10,
     11: state11,
     12: state12,
-    42: state42,
-    1337: state1337,
     13: default
 }
 
