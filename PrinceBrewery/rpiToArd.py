@@ -678,3 +678,4 @@ if __name__ == '__main__':
     while state <= 13 or state == 42 or state == 1337:
         state = switch(state)
         print("next state is: " + str(state))
+# test1
