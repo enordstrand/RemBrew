@@ -69,23 +69,19 @@ def giveHL1():
         ser.write(b'You shall Give HL1\r\n')
         print("end serial write")
         waitForResponseAndPrint("Give HL1")
-        print("end wait for response")
-        temp = waitForResponseAndPrint("gave HL1")
 
-        if "HL1" in temp:
-            data = temp
-
-
-
-        print("Giving HL1")
-        ser.write(b'You shall start PID SP;HLT;' + bytes(str(100)) + b'\r\n')
-        print("end starting H1")
-
-        temp = ser.readline()
-        print("the temp1 is:")
-        print(temp)
     except:
-        print("Something wring with Serial communication H1")
+        print("Something wring with Serial communication HL1")
+
+def giveHL3():
+    try:
+        print("start serial write to get high level Boil")
+        ser.write(b'You shall Give HL3\r\n')
+        print("end serial write")
+        waitForResponseAndPrint("Give HL3")
+
+    except:
+        print("Something wring with Serial communication HL3")
 
 def openV1():
     try:
@@ -324,6 +320,9 @@ while True:  # Run forever
 
     elif "giveHL1" in str(value):
         giveHL1()
+
+    elif "giveHL3" in str(value):
+        giveHL3()
 
     elif "reset" in str(value):
         closeV1()
