@@ -55,6 +55,37 @@ try:
 except ImportError:
     print("Not running RPi, can't import library")
 
+def waitForResponseAndPrint(expectedMessage):
+    while True:
+        confirmation = ser.readline()
+        if expectedMessage in confirmation:
+            print("response: " + str(confirmation))
+            return confirmation
+            # break
+
+def giveHL1():
+    try:
+        print("start serial write to get high level HLT")
+        ser.write(b'You shall Give HL1\r\n')
+        print("end serial write")
+        waitForResponseAndPrint("Give HL1")
+        print("end wait for response")
+        temp = waitForResponseAndPrint("gave HL1")
+
+        if "HL1" in temp:
+            data = temp
+
+
+
+        print("Giving HL1")
+        ser.write(b'You shall start PID SP;HLT;' + bytes(str(100)) + b'\r\n')
+        print("end starting H1")
+
+        temp = ser.readline()
+        print("the temp1 is:")
+        print(temp)
+    except:
+        print("Something wring with Serial communication H1")
 
 def openV1():
     try:
