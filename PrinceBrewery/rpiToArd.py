@@ -98,6 +98,13 @@ except ImportError:
     print("Not running RPi, can't import library")
 
 
+
+def getLitersFromManometre(manometerValue):
+    print("InputValue: " + manometerValue)
+    liters = manometerValue / 2
+    print("Liters: " + liters)
+
+
 def openV1():
     try:
         print("opening v1")
@@ -304,7 +311,8 @@ def state2():
         data = temp
 
     heightLevel = float(data.split(b':')[1])
-    print("The number of liters in HLT is: " + str(heightLevel))
+    heightLiter = getLitersFromManometre(heightLevel)
+    print("The number of liters in HLT is: " + str(heightLiter))
     if state2_firstRun:
         openV1()
         state2_firstRun = False
