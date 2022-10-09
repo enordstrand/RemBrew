@@ -99,10 +99,10 @@ except ImportError:
 
 
 
-def getLitersFromManometre(manometerValue):
-    print("InputValue: " + manometerValue)
-    liters = manometerValue / 2
-    print("Liters: " + liters)
+# def getLitersFromManometre(manometerValue):
+#     print("InputValue: " + manometerValue)
+#     liters = manometerValue / 2
+#     print("Liters: " + liters)
 
 
 def openV1():
@@ -311,8 +311,8 @@ def state2():
         data = temp
 
     heightLevel = float(data.split(b':')[1])
-    heightLiter = getLitersFromManometre(heightLevel)
-    print("The number of liters in HLT is: " + str(heightLiter))
+    # heightLiter = getLitersFromManometre(heightLevel)
+    # print("The number of liters in HLT is: " + str(heightLiter))
     if state2_firstRun:
         openV1()
         state2_firstRun = False
