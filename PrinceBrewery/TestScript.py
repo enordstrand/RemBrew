@@ -69,6 +69,7 @@ def giveHL1():
         ser.write(b'You shall Give HL1\r\n')
         print("end serial write")
         waitForResponseAndPrint("Give HL1")
+        waitForResponseAndPrint("gave HL1")
 
     except:
         print("Something wring with Serial communication HL1")
@@ -79,6 +80,7 @@ def giveHL3():
         ser.write(b'You shall Give HL3\r\n')
         print("end serial write")
         waitForResponseAndPrint("Give HL3")
+        waitForResponseAndPrint("gave HL3")
 
     except:
         print("Something wring with Serial communication HL3")
