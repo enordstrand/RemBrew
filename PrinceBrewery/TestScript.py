@@ -322,6 +322,9 @@ while True:  # Run forever
     elif "stopH3" in str(value):
         stopH3()
 
+    elif "giveHL1" in str(value):
+        giveHL1()
+
     elif "reset" in str(value):
         closeV1()
         sleep(1)
