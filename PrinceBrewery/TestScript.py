@@ -59,6 +59,7 @@ except ImportError:
 def waitForResponseAndPrint(expectedMessage):
     while True:
         confirmation = ser.readline()
+        print("HELLO WORLD")
         if expectedMessage in confirmation:
             print("response: " + str(confirmation))
             return confirmation
@@ -252,7 +253,9 @@ def startH1(temperature):
             ser.write(b'You shall start PID SP;HLT;' + bytes(str(temperature)) + b'\r\n')
             print("end starting H1")
             waitForResponseAndPrint("PID FB")
+            print("Kake")
             waitForResponseAndPrint("PID FB")
+            print("sopp")
             time.sleep(1)
 
     except KeyboardInterrupt:
