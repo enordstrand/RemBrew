@@ -10,7 +10,8 @@ static const int T3 = A2;
 static const int HL1 = A5;
 static const int HL3 = A3;
 static const int windowSize = 5000;
-static const float gain = (100 - 0.9)/(3700-75);
+static const float gain = (100 - 10.2)/(3335-224);
+//static const float gain = 1;
 
 double setpoint1, input1, output1;
 double setpoint3, input3, output3;
