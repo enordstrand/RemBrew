@@ -1,5 +1,6 @@
 from time import sleep  # Import the sleep function from the time module
 import serial
+import time
 # OUTPUTS
 from pip._vendor.distlib.compat import raw_input
 
@@ -65,22 +66,32 @@ def waitForResponseAndPrint(expectedMessage):
 
 def giveHL1():
     try:
-        print("start serial write to get high level HLT")
-        ser.write(b'You shall Give HL1\r\n')
-        print("end serial write")
-        waitForResponseAndPrint("Give HL1")
-        waitForResponseAndPrint("gave HL1")
+        while True:
+            print("start serial write to get high level HLT")
+            ser.write(b'You shall Give HL1\r\n')
+            print("end serial write")
+            waitForResponseAndPrint("Give HL1")
+            waitForResponseAndPrint("gave HL1")
+    except KeyboardInterrupt:
+        print("Keyboard interrupted!")
+        pass
 
     except:
         print("Something wring with Serial communication HL1")
 
 def giveHL3():
     try:
-        print("start serial write to get high level Boil")
-        ser.write(b'You shall Give HL3\r\n')
-        print("end serial write")
-        waitForResponseAndPrint("Give HL3")
-        waitForResponseAndPrint("gave HL3")
+        while True:
+            print("start serial write to get high level Boil")
+            ser.write(b'You shall Give HL3\r\n')
+            print("end serial write")
+            waitForResponseAndPrint("Give HL3")
+            waitForResponseAndPrint("gave HL3")
+            time.sleep(1)
+
+    except KeyboardInterrupt:
+        print("Keyboard interrupted!")
+        pass
 
     except:
         print("Something wring with Serial communication HL3")
