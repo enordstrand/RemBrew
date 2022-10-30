@@ -248,19 +248,14 @@ def stopP2():
 
 def startH1(temperature):
     try:
-        while True:
-            print("Starting H1")
-            ser.write(b'You shall start PID SP;HLT;' + bytes(str(temperature)) + b'\r\n')
-            print("end starting H1")
-            waitForResponseAndPrint("PID FB")
-            print("Kake")
-            waitForResponseAndPrint("PID FB")
-            print("sopp")
-            time.sleep(1)
 
-    except KeyboardInterrupt:
-        print("Keyboard interrupted!")
-        pass
+        print("Starting H1")
+        ser.write(b'You shall start PID SP;HLT;' + bytes(str(temperature)) + b'\r\n')
+        print("end starting H1")
+        waitForResponseAndPrint("PID FB")
+        print("Kake")
+        waitForResponseAndPrint("PID FB")
+        print("sopp")
 
     except:
         print("Something wring with Serial communication H1")
@@ -277,16 +272,12 @@ def stopH1():
 
 def startH3(temperature):
     try:
-        while True:
-            print("Starting H3")
-            ser.write(b'You shall start PID SP;Boil;' + bytes(str(temperature)) + b'\r\n')
-            print("end starting H3")
-            waitForResponseAndPrint("PID FB")
-            waitForResponseAndPrint("PID FB")
-            time.sleep(1)
-    except KeyboardInterrupt:
-        print("Keyboard interrupted!")
-        pass
+        print("Starting H3")
+        ser.write(b'You shall start PID SP;Boil;' + bytes(str(temperature)) + b'\r\n')
+        print("end starting H3")
+        waitForResponseAndPrint("PID FB")
+        waitForResponseAndPrint("PID FB")
+
     except:
         print("Something wring with Serial communication H3")
 
