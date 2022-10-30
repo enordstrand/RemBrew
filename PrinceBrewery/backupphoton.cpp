@@ -101,7 +101,7 @@ void loop() {
             highLevel = (highLevelValue - initialValue) / k + initialLiter; // Convert this value to liter
             Serial.println("photon gave " + manometerId + ":" + String(highLevel));
         } else {
-            Serial.println("photon gave " + manometerId + ":0");
+            Serial.println("photon gave " + manometerId + ":" + String(highLevelValue));
         }
     } else if (data.indexOf("start PID SP;") > 0 && dataReceived) {
         //int tempBucket = 0;
