@@ -26,7 +26,6 @@ const double R2 = 10000;
 int samples1[numberOfSamples];
 int samples2[numberOfSamples];
 
-
 PID myPID1(&temp1, &output1, &setpoint1, kp, ki, kd, DIRECT);
 PID myPID2(&temp2, &output2, &setpoint2, kp, ki, kd, DIRECT);
 
@@ -37,6 +36,7 @@ void setup() {
     pinMode(relayPin2, OUTPUT);
     pinMode(TempProbe2, INPUT);
     //input1 = analogRead(0);
+    // DUMMYCHANGE
     myPID1.SetMode(AUTOMATIC);
     myPID1.SetOutputLimits(0, windowSize);
     myPID2.SetMode(AUTOMATIC);
@@ -123,4 +123,3 @@ void doPid() {
     Serial.print(" W2: ");
     Serial.println(output2);
 }
-
