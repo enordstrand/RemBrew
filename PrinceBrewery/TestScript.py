@@ -253,8 +253,6 @@ def startH1(temperature):
             ser.write(b'You shall start PID SP;HLT;' + bytes(str(temperature)) + b'\r\n')
             print("end starting H1")
             waitForResponseAndPrint("PID FB")
-            print("Kake")
-            waitForResponseAndPrint("PID FB")
             print("sopp")
             time.sleep(1)
 
