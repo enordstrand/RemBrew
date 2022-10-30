@@ -29,6 +29,7 @@ int samples2[numberOfSamples];
 PID myPID1(&temp1, &output1, &setpoint1, kp, ki, kd, DIRECT);
 PID myPID2(&temp2, &output2, &setpoint2, kp, ki, kd, DIRECT);
 
+
 void setup() {
     Serial.begin(115200);
     pinMode(relayPin1, OUTPUT);
