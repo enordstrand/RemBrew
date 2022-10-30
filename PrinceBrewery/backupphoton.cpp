@@ -2,6 +2,7 @@
 #include <pid.h>
 
 static const int H1 = D0;
+static const int 3V = D1;
 static const int H3 = D2;
 static const int T1 = A1;
 static const int T2 = A0;
@@ -41,12 +42,14 @@ void setup() {
     pinMode (HL1, INPUT);
     pinMode (HL3, INPUT);
     pinMode(H1, OUTPUT);
+    pinMode(3V, OUTPUT);
     pinMode(H3, OUTPUT);
     myPID1.SetMode(PID::AUTOMATIC);
     myPID1.SetOutputLimits(0, windowSize);
     myPID3.SetMode(PID::AUTOMATIC);
     myPID3.SetOutputLimits(0, windowSize);
     digitalWrite(H1, LOW);
+    digitalWrite(3V, HIGH);
     digitalWrite(H3, HIGH);
 }
 void loop() {
