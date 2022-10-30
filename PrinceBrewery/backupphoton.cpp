@@ -92,10 +92,16 @@ void loop() {
             highLevelBucket = highLevelBucket + highLevelTemp;
         }
 
+        int initialValue = 569; //550
+        int initialLiter = 25; //24
+        double k = 7;
         int highLevelValue = highLevelBucket/30000;
-        highLevel = highLevelValue; // Convert this value to liter
-        Serial.println("photon gave " + manometerId + ":" + String(highLevel));
-
+        if (highLevelValue > 545) {
+            highLevel = (highLevelValue - initialValue) / k + initialLiter; // Convert this value to liter
+            Serial.println("photon gave " + manometerId + ":" + String(highLevel));
+        } else {
+            Serial.println("photon gave " + manometerId + ":0");
+        }
     } else if (data.indexOf("start PID SP;") > 0 && dataReceived) {
         //int tempBucket = 0;
         //String firstVal, secondVal, thirdVal;
