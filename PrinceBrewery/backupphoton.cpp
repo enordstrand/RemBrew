@@ -46,7 +46,7 @@ void setup() {
     myPID1.SetOutputLimits(0, windowSize);
     myPID3.SetMode(PID::AUTOMATIC);
     myPID3.SetOutputLimits(0, windowSize);
-    digitalWrite(H1, HIGH);
+    digitalWrite(H1, LOW);
     digitalWrite(H3, HIGH);
 }
 void loop() {
@@ -62,7 +62,7 @@ void loop() {
     }
 
     if (data.indexOf("Turn off H1") > 0 && dataReceived) {
-        digitalWrite(H1, HIGH);
+        digitalWrite(H1, LOW);
         Serial.println("photon turned off H1");
         //delay(1000);
 
@@ -175,10 +175,10 @@ void doPid(String secondVal) {
 
     if (secondVal == "HLT") {
         if ((windowOpening > now - windowStartTime) && windowOpening > 100 && tempVal > -1) {
-        digitalWrite(H1, LOW);
+        digitalWrite(H1, HIGH);
         HState = 'H';
         } else {
-            digitalWrite(H1, HIGH);
+            digitalWrite(H1, LOW);
             HState = 'L';
         }
         Serial.print("PID FB;HLT;T1:" + String(temp1) + ";W1:" + String(output1) + ";H1State:" + String(HState));
