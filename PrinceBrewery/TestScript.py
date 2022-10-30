@@ -59,7 +59,6 @@ except ImportError:
 def waitForResponseAndPrint(expectedMessage):
     while True:
         confirmation = ser.readline()
-        print ("Confirmatio: " + confirmation)
         if expectedMessage in confirmation:
             print("response: " + str(confirmation))
             return confirmation
@@ -73,6 +72,7 @@ def giveHL1():
             print("end serial write")
             waitForResponseAndPrint("Give HL1")
             waitForResponseAndPrint("gave HL1")
+            time.sleep(1)
     except KeyboardInterrupt:
         print("Keyboard interrupted!")
         pass
@@ -247,11 +247,17 @@ def stopP2():
 
 def startH1(temperature):
     try:
-        print("Starting H1")
-        ser.write(b'You shall start PID SP;HLT;' + bytes(str(temperature)) + b'\r\n')
-        print("end starting H1")
-        waitForResponseAndPrint("PID FB")
-        waitForResponseAndPrint("PID FB")
+        while True:
+            print("Starting H1")
+            ser.write(b'You shall start PID SP;HLT;' + bytes(str(temperature)) + b'\r\n')
+            print("end starting H1")
+            waitForResponseAndPrint("PID FB")
+            waitForResponseAndPrint("PID FB")
+            time.sleep(1)
+
+    except KeyboardInterrupt:
+        print("Keyboard interrupted!")
+        pass
 
     except:
         print("Something wring with Serial communication H1")
@@ -268,9 +274,16 @@ def stopH1():
 
 def startH3(temperature):
     try:
-        print("Starting H3")
-        ser.write(b'You shall start PID SP;Boil;' + bytes(str(temperature)) + b'\r\n')
-        print("end starting H3")
+        while True:
+            print("Starting H3")
+            ser.write(b'You shall start PID SP;Boil;' + bytes(str(temperature)) + b'\r\n')
+            print("end starting H3")
+            waitForResponseAndPrint("PID FB")
+            waitForResponseAndPrint("PID FB")
+            time.sleep(1)
+    except KeyboardInterrupt:
+        print("Keyboard interrupted!")
+        pass
     except:
         print("Something wring with Serial communication H3")
 
