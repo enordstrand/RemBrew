@@ -59,6 +59,7 @@ except ImportError:
 def waitForResponseAndPrint(expectedMessage):
     while True:
         confirmation = ser.readline()
+        print ("Confirmatio: " + confirmation)
         if expectedMessage in confirmation:
             print("response: " + str(confirmation))
             return confirmation
@@ -244,11 +245,14 @@ def stopP2():
         print("RPI GPIO13 NOT EXIST")
 
 
-def startH1():
+def startH1(temperature):
     try:
         print("Starting H1")
-        ser.write(b'You shall start PID SP;HLT;' + bytes(str(100)) + b'\r\n')
+        ser.write(b'You shall start PID SP;HLT;' + bytes(str(temperature)) + b'\r\n')
         print("end starting H1")
+        waitForResponseAndPrint("PID FB")
+        waitForResponseAndPrint("PID FB")
+
     except:
         print("Something wring with Serial communication H1")
 
@@ -262,10 +266,10 @@ def stopH1():
         print("Something wring with Serial communication H1")
 
 
-def startH3():
+def startH3(temperature):
     try:
         print("Starting H3")
-        ser.write(b'You shall start PID SP;Boil;' + bytes(str(100)) + b'\r\n')
+        ser.write(b'You shall start PID SP;Boil;' + bytes(str(temperature)) + b'\r\n')
         print("end starting H3")
     except:
         print("Something wring with Serial communication H3")
@@ -320,13 +324,17 @@ while True:  # Run forever
         stopP2()
 
     elif "startH1" in str(value):
-        startH1()
+        temperature = float(value.split(b':')[1])
+        print("Temperature: " + str(temperature))
+        startH1(temperature)
 
     elif "stopH1" in str(value):
         stopH1()
 
     elif "startH3" in str(value):
-        startH3()
+        temperature = float(value.split(b':')[1])
+        print("Temperature: " + str(temperature))
+        startH3(temperature)
 
     elif "stopH3" in str(value):
         stopH3()
