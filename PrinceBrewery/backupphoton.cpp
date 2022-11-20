@@ -84,15 +84,15 @@ void loop() {
         if (data.indexOf("HL1") > 0) {
             manometer = HL1;
             manometerId = "HL1";
-            initialValue = 523;
+            initialValue = 459;
             initialLiter = 23;
-            k = 7.683333333;
+            k = 6.962962963;
         } else if (data.indexOf("HL3") > 0) {
             manometer = HL3;
             manometerId = "HL3";
             initialValue = 660;
             initialLiter = 23;
-            k = 7.48;
+            k = 7.683333333;
         } else {
             Serial.println("Syntax Error HL");
         }
@@ -104,7 +104,7 @@ void loop() {
 
 
         int highLevelValue = highLevelBucket/300;
-        if (highLevelValue > 545) {
+        if (highLevelValue > initialValue + 50) {
             highLevel = (highLevelValue - initialValue) / k + initialLiter; // Convert this value to liter
             Serial.println("photon gave " + manometerId + ":" + String(highLevel) + ":" + String(highLevelValue));
         } else {
