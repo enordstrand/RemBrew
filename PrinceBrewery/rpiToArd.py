@@ -158,6 +158,8 @@ def setV3Mesh():
         GPIO.output(v3_HLT, GPIO.LOW)
         sleep(0.1)
         GPIO.output(v3_mesh, GPIO.HIGH)
+        sleep(5)
+        GPIO.output(v3_mesh, GPIO.LOW)
         sleep(0.2)
         print("end open v3")
     except:
@@ -170,6 +172,8 @@ def setV3HLT():
         GPIO.output(v3_HLT, GPIO.HIGH)
         sleep(0.1)
         GPIO.output(v3_mesh, GPIO.LOW)
+        sleep(5)
+        GPIO.output(v3_mesh, GPIO.HIGH)
         sleep(0.2)
         print("end closing v3")
     except:
