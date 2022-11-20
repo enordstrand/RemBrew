@@ -304,15 +304,15 @@ def waitForResponseAndPrint(expectedMessage):
             # break
 
 def state2():
-    print("Fill HLT start")
+    # print("Fill HLT start")
     global state2_firstRun
     global heightLevel
 
-    print("start serial write to get high level HLT")
+    # print("start serial write to get high level HLT")
     ser.write(b'You shall Give HL1\r\n')
-    print("end serial write")
+    # print("end serial write")
     waitForResponseAndPrint("Give HL1")
-    print("end wait for response")
+    #print("end wait for response")
     temp = waitForResponseAndPrint("gave HL1")
 
     if "HL1" in temp:
@@ -342,22 +342,20 @@ def state2():
 
 def state3():
     global meshTempSP
-    print("Initial heating for meshing " + str(meshTempSP) + " degrees")
+    # print("Initial heating for meshing " + str(meshTempSP) + " degrees")
     # ser.write(b'You shall start PID SP;HLT;' + bytes(str(meshTempSP), "utf-8") + b'\r\n')
     ser.write(b'You shall start PID SP;HLT;' + bytes(str(meshTempSP)) + b'\r\n')
     temp = ser.readline()
-    print("the temp1 is:")
+    # print("the temp1 is:")
     print(temp)
     if "sent me" in temp is False:
         data = temp
 
     temp = ser.readline()
-    print("the temp2 is:")
     print(temp)
     if not "sent me" in temp:
         data = temp
 
-    print("Awesome data is:")
     print(data)
 
     x = data.split(b';')
@@ -366,11 +364,8 @@ def state3():
     if float(x[2].split(b':')[1]) < meshTempSP:
         return 3
     else:
-        print("start serial write")
         ser.write(b'You shall Turn off H1\r\n')
-        print("end serial write")
         waitForResponseAndPrint("Turn off H1")
-        print("end wait for response")
         waitForResponseAndPrint("turned off H1")
         return 4
 
@@ -378,19 +373,19 @@ def state3():
 def state4():
     global heightLevel
 
-    print("start serial write to get high level HLT")
+    # print("start serial write to get high level HLT")
     ser.write(b'You shall Give HL1\r\n')
-    print("end serial write")
+    # print("end serial write")
     waitForResponseAndPrint("Give HL1")
-    print("end wait for response")
+    # print("end wait for response")
     temp = waitForResponseAndPrint("gave HL1")
 
     if "HL1" in temp:
         data = temp
 
     heightLevel = float(data.split(b':')[1])
-    print("The number of liters in HLT is: " + str(heightLevel))
-    print("Fill mesh")
+    print("The number of liters in MESH is: " + str(heightLevelMaximumSP - heightLevel) + ", and HLT is: " + str(heightLevel))
+    # print("Fill mesh")
     setV3Mesh()
 
     if heightLevel < heightLevelMaximumSP - meshLiter:
@@ -402,17 +397,17 @@ def state4():
 
 
 def state5():
-    print("Re-filling HLT")
+    # print("Re-filling HLT")
     global state5_firstRun_open
     global state5_firstRun_close
     global heightLevel
     global refillHLTSP
 
-    print("start serial write to get high level HLT")
+    # print("start serial write to get high level HLT")
     ser.write(b'You shall Give HL1\r\n')
-    print("end serial write")
+    # print("end serial write")
     waitForResponseAndPrint("Give HL1")
-    print("end wait for response")
+    # print("end wait for response")
     temp = waitForResponseAndPrint("gave HL1")
 
     if "HL1" in temp:
@@ -420,7 +415,7 @@ def state5():
 
     heightLevel = float(data.split(b':')[1])
     print("The number of liters in HLT is: " + str((heightLevel/7)-54.71))
-    print("Re-filling HLT")
+    # print("Re-filling HLT")
 
     if state5_firstRun_open:
         openV1()
@@ -443,18 +438,18 @@ def state6():
 #   global heightLevel
     ser.write(b'You shall start PID SP;HLT;' + bytes(str(circulationTempSP)) + b'\r\n')
     temp = ser.readline()
-    print("the temp1 is:")
+    # print("the temp1 is:")
     print(temp)
     if not "sent me" in temp:
         data = temp
 
     temp = ser.readline()
-    print("the temp2 is:")
+    # print("the temp2 is:")
     print(temp)
     if not "sent me" in temp:
         data = temp
 
-    print("Awesome data is:")
+    # print("Awesome data is:")
     print(data)
 
     x = data.split(b';')
@@ -473,7 +468,7 @@ def state7():
     currentTime = time.time()
     if meshTimerStart == 0.0:
         meshTimerStart = time.time()
-        print("Mesh timer started...")
+        # print("Mesh timer started...")
         return 5
     elif currentTime - meshTimerStart < meshTime:
         print("Still meshing at time: " + str(currentTime - meshTimerStart))
@@ -489,20 +484,20 @@ def state7():
         # print("meshTimeInSeconds: " + str(meshTime/60.0))
         return 8
     else:
-        print("Looping while waiting for something to finish...")
+        # print("Looping while waiting for something to finish...")
         print(meshTime)
         return 5
 
 
 def state8():
     global circulationTimerStart
-    print("Circulation")
+    # print("Circulation")
     currentTime = time.time()
     if circulationTimerStart == 0.0:
         circulationTimerStart = time.time()
         startP2()
         setV2(1)
-        print("circulation timer started...")
+        # print("circulation timer started...")
         return 8
     elif currentTime - circulationTimerStart < circulationTime:
         print("Still circulating at time: " + str(currentTime - circulationTimerStart))
@@ -530,13 +525,13 @@ def state9():
 
 
 
-    print("start serial write to get high level Boil")
+    # print("start serial write to get high level Boil")
     ser.write(b'You shall Give HL3\r\n')
-    print("end serial write")
+    # print("end serial write")
     waitForResponseAndPrint("Give HL3")
-    print("end wait for response first")
+    # print("end wait for response first")
     temp = waitForResponseAndPrint("gave HL3")
-    print ("end wait for response second")
+    # print ("end wait for response second")
 
     if "HL3" in temp:
         data = temp
@@ -544,13 +539,13 @@ def state9():
     heightLevel = float(data.split(b':')[1])
 
     if heightLevel > 60: # 620.0
-        print("INSIDE IF")
+        # print("INSIDE IF")
         stopP2()  # Maybe we can remove this.
     else:
-        print("INSIDE ELSE")
+        # print("INSIDE ELSE")
         if state9_firstRun:
             startP2() #Redundant
-            print("INSIDE ELSE IF")
+            # print("INSIDE ELSE IF")
             setV2(2)
             #state9_firstRun = False
     if heightLevel > heightLevelBoilMinimumSP:
@@ -563,12 +558,12 @@ def state9():
             data = temp
 
         temp = ser.readline()
-        print("the temp2 is:")
+        # print("the temp2 is:")
         print(temp)
         if "Boil" in temp:
             data = temp
 
-        print("Awesome data is:")
+        # print("Awesome data is:")
         print(data)
 
         x = data.split(b';')
@@ -580,7 +575,7 @@ def state9():
             if rinseProcessDone:
                 return 11
 
-        print("The rinseProcess done is: ")
+        # print("The rinseProcess done is: ")
         print(rinseProcessDone)
         if rinseProcessDone:
             return 9
@@ -597,11 +592,11 @@ def state10():
     global heightLevel
     global rinseLiter
 
-    print("start serial write to get high level HLT")
+    # print("start serial write to get high level HLT")
     ser.write(b'You shall Give HL1\r\n')
-    print("end serial write")
+    # print("end serial write")
     waitForResponseAndPrint("Give HL1")
-    print("end wait for response")
+    # print("end wait for response")
     temp = waitForResponseAndPrint("gave HL1")
 
     if "HL1" in temp:
@@ -612,7 +607,7 @@ def state10():
     if heightLevel < refillHLTSP-rinseLiter and rinseProcessDone == False:
         stopP1()
         rinseProcessDone = True
-        print("Done pumping fresh water to mesh")
+        # print("Done pumping fresh water to mesh")
     else:
         setV3Mesh()
         startP1()

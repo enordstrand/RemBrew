@@ -298,6 +298,18 @@ def stopH3():
     except:
         print("Something wring with Serial communication H3")
 
+stopP1()
+sleep(1)
+stopP2()
+sleep(1)
+closeV1()
+sleep(1)
+setV2(1)
+sleep(1)
+setV3HLT()
+sleep(1)
+closeV5()
+sleep(1)
 
 while True:  # Run forever
     value = raw_input("Please enter a string:\n")
@@ -361,6 +373,10 @@ while True:  # Run forever
         giveHL3()
 
     elif "reset" in str(value):
+        stopP1()
+        sleep(1)
+        stopP2()
+        sleep(1)
         closeV1()
         sleep(1)
         setV2(1)
@@ -368,10 +384,6 @@ while True:  # Run forever
         setV3HLT()
         sleep(1)
         closeV5()
-        sleep(1)
-        stopP1()
-        sleep(1)
-        stopP2()
         sleep(1)
 
     else:
