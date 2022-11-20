@@ -12,25 +12,29 @@ state9_firstRun = True
 
 
 # meshTempSP = 67.0
-meshTempSP = 20.0
-circulationTempSP = 25.0
+meshTempSP = 67
+circulationTempSP = 80
 # boilTempSP = 80.0
-boilTempSP = 30.0
-heightLevelMinimumSP = 600.0
-heightLevelMaximumSP = 620.0
-refillHLTSP = 630.0
-rinseLiter = 50.0
+boilTempSP = 100
+heightLevelMinimumSP = 60
+heightLevelMaximumSP = 70
+heightLevelBoilMinimumSP = 45
+refillHLTSP = 70
+meshLiter = 37
+rinseLiter = 37
 
 meshTimerStart = 0.0
 circulationTimerStart = 0.0
 rinseTimerStart = 0.0
 boilTimerStart = 0.0
 
-meshTime = 220.0 #450 #200
-circulationTime = 60.0 #300
+meshTime = 600 #450 #200
+circulationTime = 600 #300
 rinseTime = 300.0
-boilTime1 = 300.0
-boilTime2 = 300.0
+boilTime1 = 1.0*60
+boilTime2 = 2.5*60
+boilTime3 = 4.5*60
+boilTime4 = 5.5*60
 
 hltTemp = 0.0
 heightLevel = 0.0
@@ -385,7 +389,7 @@ def state4():
     print("Fill mesh")
     setV3Mesh()
 
-    if heightLevel < 550.0:
+    if heightLevel < heightLevelMaximumSP - meshLiter:
         setV3HLT()
         stopP1()
         return 5
@@ -535,7 +539,7 @@ def state9():
 
     heightLevel = float(data.split(b':')[1])
 
-    if heightLevel > 800.0: # 620.0
+    if heightLevel > 60: # 620.0
         print("INSIDE IF")
         stopP2()  # Maybe we can remove this.
     else:
@@ -545,7 +549,7 @@ def state9():
             print("INSIDE ELSE IF")
             setV2(2)
             #state9_firstRun = False
-    if heightLevel > 730.0:
+    if heightLevel > heightLevelBoilMinimumSP:
 #   WE NEED TO CALIBRATE OR FIX BOIL SENSOR SO THAT IT IS CORRECT ON 100 DEGREES
         ser.write(b'You shall start PID SP;Boil;' + bytes(str(boilTempSP)) + b'\r\n')
         waitForResponseAndPrint("PID SP;Boil")
@@ -568,7 +572,7 @@ def state9():
         print("The temperature in Boil 100 is: " + str(boilTemp))
 
         if boilTemp >= boilTempSP:
-            print("The wort is now boiling. Remember to add 60' hops!")
+            print("The wort is now boiling.")
             if rinseProcessDone:
                 return 11
 
@@ -621,13 +625,24 @@ def state11():
 
     currentTime = time.time()
     if currentTime - boilTimerStart < boilTime1:
-        print("Waiting for the second Hops to be inserted. Time: " + str(currentTime - boilTimerStart))
+        print("Waiting for the first 10g Hops to be inserted. Time: " + str(currentTime - boilTimerStart))
         return 11
+
     elif boilTime1 <= currentTime - boilTimerStart < boilTime2:
-        print("Waiting for the boil process to finish. Time: " + str(currentTime - boilTimerStart))
+        print("Waiting for the second 10g Hops to be inserted. Time: " + str(currentTime - boilTimerStart))
         return 11
+
+    elif boilTime1 <= currentTime - boilTimerStart < boilTime3:
+        print("Waiting for the first 15g Hops to be inserted. Time: " + str(currentTime - boilTimerStart))
+        return 11
+
+    elif boilTime1 <= currentTime - boilTimerStart < boilTime4:
+        print("Waiting for the second 15g Hops to be inserted. Time: " + str(currentTime - boilTimerStart))
+        return 11
+
+
     elif currentTime - boilTimerStart >= boilTime2:
-        print("Done with the boiling")
+        print("Done with the boiling, insert 50g Hops")
         return 12
 
 
