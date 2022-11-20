@@ -204,7 +204,7 @@ void doPid(String secondVal) {
             digitalWrite(H3, LOW);
             HState = 'H';
         } else {
-            digitalWrite(H3, LOW);
+            digitalWrite(H3, HIGH);
             HState = 'L';
         }
         Serial.print("PID FB;Boil;T3:" + String(temp3) + ";W3:" + String(output3) + ";H3State:" + String(HState));
