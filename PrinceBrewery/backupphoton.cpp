@@ -77,31 +77,38 @@ void loop() {
     } else if (data.indexOf("Give HL") > 0 && dataReceived) {
         int manometer;
         int highLevelBucket = 0;
+        int initialValue;
+        int initialLiter;
+        double k;
         String manometerId;
         if (data.indexOf("HL1") > 0) {
             manometer = HL1;
             manometerId = "HL1";
+            initialValue = 523;
+            initialLiter = 23;
+            k = 7.683333333;
         } else if (data.indexOf("HL3") > 0) {
             manometer = HL3;
             manometerId = "HL3";
+            initialValue = 660;
+            initialLiter = 23;
+            k = 7.48;
         } else {
             Serial.println("Syntax Error HL");
         }
 
-        for(int j = 1 ; j<=30000 ;  j++) {
+        for(int j = 1 ; j<=300 ;  j++) {
             int highLevelTemp = analogRead(manometer);
             highLevelBucket = highLevelBucket + highLevelTemp;
         }
 
-        int initialValue = 569; //550
-        int initialLiter = 25; //24
-        double k = 7;
-        int highLevelValue = highLevelBucket/30000;
+
+        int highLevelValue = highLevelBucket/300;
         if (highLevelValue > 545) {
             highLevel = (highLevelValue - initialValue) / k + initialLiter; // Convert this value to liter
-            Serial.println("photon gave " + manometerId + ":" + String(highLevel));
+            Serial.println("photon gave " + manometerId + ":" + String(highLevel) + ":" + String(highLevelValue));
         } else {
-            Serial.println("photon gave " + manometerId + ":" + String(highLevelValue));
+            Serial.println("photon gave " + manometerId + ":0:" + String(highLevelValue));
         }
     } else if (data.indexOf("start PID SP;") > 0 && dataReceived) {
         //int tempBucket = 0;
