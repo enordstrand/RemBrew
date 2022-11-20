@@ -10,8 +10,8 @@ static const int T3 = A2;
 static const int HL1 = A5;
 static const int HL3 = A3;
 static const int windowSize = 5000;
-static const float gain = (100 - 10.2)/(3335-224);
-//static const float gain = 1;
+static const float gain1 = (69.5 - 15.3)/(2206-429);
+static const float gain3 = (69.2 - 15.3)/(2186-513);
 
 double setpoint1, input1, output1;
 double setpoint3, input3, output3;
@@ -144,13 +144,15 @@ void loop() {
         int tempValue = tempBucket/200;
         //int highLevelValue = highLevelBucket/200;
         if (secondVal == "HLT") {
-            temp1 = tempValue * gain;
+//            temp1 = tempValue;
+            temp1 = tempValue * gain1;
             //highLevel1 = highLevelValue; // Convert this value to liter
 
 
             setpoint1 = sp;
         } else if (secondVal == "Boil") {
-            temp3 = tempValue * gain;
+//            temp3 = tempValue;
+            temp3 = tempValue * gain3;
             //highLevel3 = highLevelValue; // Convert this value to liter
             setpoint3 = sp;
         }
