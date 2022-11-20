@@ -1,5 +1,6 @@
 import serial
 import time
+import keyboard
 from time import sleep  # Import the sleep function from the time module
 
 # ser = serial.Serial('COM3')
@@ -140,12 +141,16 @@ def setV2(i):
             GPIO.output(v2_circulation, GPIO.HIGH)
             sleep(0.1)
             GPIO.output(v2_boil, GPIO.LOW)
+            sleep(5)
+            GPIO.output(v2_boil, GPIO.HIGH)
             print("end set_v2_circulation")
         elif i == 2:
             print("set_v2_boil")
             GPIO.output(v2_circulation, GPIO.LOW)
             sleep(0.1)
             GPIO.output(v2_boil, GPIO.HIGH)
+            sleep(5)
+            GPIO.output(v2_boil, GPIO.LOW)
             print("end set_v2_boil")
         sleep(0.2)
     except:
@@ -388,7 +393,7 @@ def state4():
     # print("Fill mesh")
     setV3Mesh()
 
-    if heightLevel < heightLevelMaximumSP - meshLiter:
+    if heightLevel < heightLevelMaximumSP - meshLiter or keyboard.read_key() == "v":
         setV3HLT()
         stopP1()
         return 5
