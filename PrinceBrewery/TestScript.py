@@ -147,6 +147,7 @@ def setV3Mesh():
         sleep(0.1)
         GPIO.output(v3_mesh, GPIO.HIGH)
         sleep(0.2)
+        GPIO.output(v3_mesh, GPIO.LOW)
         print("end open v3")
     except:
         print("RPI GPIO4 NOT EXIST")
@@ -159,6 +160,7 @@ def setV3HLT():
         sleep(0.1)
         GPIO.output(v3_mesh, GPIO.LOW)
         sleep(0.2)
+        GPIO.output(v3_mesh, GPIO.HIGH)
         print("end closing v3")
     except:
         print("RPI GPIO5 NOT EXIST")
